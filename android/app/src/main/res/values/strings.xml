@@ -1,0 +1,7 @@
+<resources>
+  <string name="app_name">SmartCalc AI</string>
+  <string name="shortcut_voice_short">Voice Calc</string>
+  <string name="shortcut_voice_long">Voice Calculate</string>
+  <string name="shortcut_history_short">History</string>
+  <string name="shortcut_history_long">Calculation History</string>
+</resources>

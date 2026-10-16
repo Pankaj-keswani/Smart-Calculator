@@ -1,0 +1,41 @@
+# Node & Dependencies
+node_modules/
+.expo/
+dist/
+web-build/
+coverage/
+
+# Android Build Outputs & Caches
+.gradle/
+android/.gradle/
+android/build/
+android/app/build/
+android/.cxx/
+*.apk
+*.aab
+*.dex
+*.so
+
+# Keystores & Credentials
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Environment & Logs
+.env
+.env.local
+.env.*.local
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.DS_Store
+Thumbs.db
+
+# Debug & Testing Screenshots in root
+/*_screen*.png
+/calc_*.png
+/emulator_screen*.png
+/long_calc_*.png
+/mini_*.png

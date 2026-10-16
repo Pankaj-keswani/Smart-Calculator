@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — SmartCalc AI</title>
+  <style>
+    :root {
+      --bg: #0F0F0F;
+      --surface: #1C1C1C;
+      --surface-elevated: #242422;
+      --border: #2C2C29;
+      --text-primary: #F5F5F0;
+      --text-secondary: #8A8982;
+      --accent: #E6D01B;
+      --accent-soft: rgba(230, 208, 27, 0.12);
+      --success: #10B981;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 32px 16px;
+    }
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 36px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.8px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+    .effective-date {
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    h2 {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    p {
+      color: #D1D1C7;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    p:last-child {
+      margin-bottom: 0;
+    }
+    ul {
+      list-style-position: inside;
+      color: #D1D1C7;
+      font-size: 14px;
+      margin-bottom: 12px;
+      padding-left: 8px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    strong {
+      color: var(--text-primary);
+    }
+    .highlight-box {
+      background: var(--accent-soft);
+      border-left: 3px solid var(--accent);
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin: 16px 0;
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <span class="badge">100% ON-DEVICE & PRIVACY-FIRST</span>
+      <h1>Privacy Policy for SmartCalc AI</h1>
+      <p class="effective-date">Last Updated: October 14, 2026</p>
+    </header>
+
+    <div class="card">
+      <h2>1. Overview & Core Privacy Promise</h2>
+      <p>
+        <strong>SmartCalc AI</strong> is engineered from the ground up with a strict privacy-by-design architecture. We believe that your daily numbers, personal finances, budget calculations, and spoken voice commands belong solely to you.
+      </p>
+      <div class="highlight-box">
+        <strong>Zero Data Collection Guarantee:</strong> SmartCalc AI does not collect, log, track, sell, or transmit any user data, calculation records, or audio recordings to external cloud servers. All computations run 100% locally on your device.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>2. Device Permissions & Why They Are Needed</h2>
+      <p>To provide hands-free voice calculation and multi-tasking overlay features, SmartCalc AI requests the following explicit Android device permissions:</p>
+      
+      <ul>
+        <li>
+          <strong>Microphone (`RECORD_AUDIO`):</strong>
+          Used exclusively when you activate voice calculation to convert spoken words into mathematical operations in real time.
+          <br>
+          <em>How it is handled:</em> Audio is processed in memory on your device using Android's system speech recognizer. We <strong>never</strong> save audio files to permanent storage, and we <strong>never</strong> upload your voice to any remote server or third-party cloud.
+        </li>
+        <li>
+          <strong>Display Over Other Apps (`SYSTEM_ALERT_WINDOW`):</strong>
+          Used solely to enable the optional <em>Floating Overlay Mode</em>, allowing a compact calculator bubble to float over applications like WhatsApp, Amazon, or Excel.
+          <br>
+          <em>How it is handled:</em> This permission is used solely to render the calculator window on your screen. The app does <strong>not</strong> read, capture, screenshot, or inspect any content from the underlying applications.
+        </li>
+        <li>
+          <strong>Vibration (`VIBRATE`):</strong>
+          Used to deliver crisp, hardware-accelerated tactile haptic feedback on keypad button presses.
+        </li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>3. Calculation Data & Local Storage</h2>
+      <p>
+        All calculations, variables, formulas, and history entries are saved strictly within your device's private sandboxed application storage (`AsyncStorage`).
+      </p>
+      <ul>
+        <li>No user account or registration is required to use the app.</li>
+        <li>Your calculation history is never synced to the cloud.</li>
+        <li>You can permanently wipe your calculation history at any time with a single tap using the "Clear All History" button in the app.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>4. Third-Party Services & Tracking</h2>
+      <p>
+        SmartCalc AI contains <strong>NO</strong> third-party analytics SDKs, <strong>NO</strong> advertising trackers, <strong>NO</strong> behavioral telemetry trackers, and <strong>NO</strong> data brokers. We do not track your location, your device identifiers, or your usage habits.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>5. Children's Privacy (COPPA Compliance)</h2>
+      <p>
+        SmartCalc AI is completely safe for all audiences and does not collect any personal information from children under 13 years of age (or any age).
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>6. Data Security</h2>
+      <p>
+        Because all processing occurs strictly within the local Android OS sandbox without outbound network communication for calculations, your financial and computational data is naturally protected against interception, man-in-the-middle attacks, and remote server leaks.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>7. Contact & Inquiries</h2>
+      <p>
+        If you have any questions, suggestions, or concerns regarding this Privacy Policy or SmartCalc AI, please contact the developer team at:
+      </p>
+      <p>
+        <strong>Email:</strong> <a href="mailto:support@smartcalc.ai">support@smartcalc.ai</a>
+      </p>
+    </div>
+
+    <footer>
+      <p>&copy; 2026 SmartCalc AI. Built with local on-device intelligence. All rights reserved.</p>
+    </footer>
+  </div>
+</body>
+</html>

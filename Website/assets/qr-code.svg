@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" fill="none">
+  <rect width="240" height="240" rx="24" fill="#12141D" stroke="#FFE500" stroke-width="2" stroke-opacity="0.3"/>
+  
+  <!-- Outer Finder Pattern Top-Left -->
+  <rect x="24" y="24" width="56" height="56" rx="10" stroke="#FFE500" stroke-width="6" fill="none"/>
+  <rect x="38" y="38" width="28" height="28" rx="6" fill="#FFE500"/>
+  
+  <!-- Outer Finder Pattern Top-Right -->
+  <rect x="160" y="24" width="56" height="56" rx="10" stroke="#FFE500" stroke-width="6" fill="none"/>
+  <rect x="174" y="38" width="28" height="28" rx="6" fill="#FFE500"/>
+  
+  <!-- Outer Finder Pattern Bottom-Left -->
+  <rect x="24" y="160" width="56" height="56" rx="10" stroke="#FFE500" stroke-width="6" fill="none"/>
+  <rect x="38" y="174" width="28" height="28" rx="6" fill="#FFE500"/>
+  
+  <!-- Timing Patterns -->
+  <path d="M90 32 h8 M106 32 h8 M122 32 h8 M138 32 h8" stroke="#FFE500" stroke-width="4" stroke-linecap="round"/>
+  <path d="M32 90 v8 M32 106 v8 M32 122 v8 M32 138 v8" stroke="#FFE500" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Data Blocks Matrix -->
+  <g fill="#E2E8F0" opacity="0.9">
+    <!-- Top-Mid Data -->
+    <rect x="92" y="44" width="8" height="8" rx="2"/>
+    <rect x="108" y="44" width="16" height="8" rx="2"/>
+    <rect x="132" y="44" width="8" height="8" rx="2"/>
+    <rect x="92" y="60" width="16" height="8" rx="2"/>
+    <rect x="116" y="60" width="8" height="8" rx="2"/>
+    <rect x="132" y="60" width="16" height="8" rx="2"/>
+    <rect x="100" y="76" width="8" height="8" rx="2"/>
+    <rect x="124" y="76" width="16" height="8" rx="2"/>
+
+    <!-- Mid-Left Data -->
+    <rect x="24" y="96" width="8" height="16" rx="2"/>
+    <rect x="40" y="96" width="16" height="8" rx="2"/>
+    <rect x="64" y="96" width="8" height="8" rx="2"/>
+    <rect x="40" y="112" width="8" height="16" rx="2"/>
+    <rect x="56" y="112" width="16" height="8" rx="2"/>
+    <rect x="24" y="136" width="16" height="8" rx="2"/>
+    <rect x="48" y="136" width="8" height="8" rx="2"/>
+    <rect x="64" y="128" width="8" height="16" rx="2"/>
+
+    <!-- Mid-Right Data -->
+    <rect x="160" y="96" width="16" height="8" rx="2"/>
+    <rect x="184" y="96" width="8" height="16" rx="2"/>
+    <rect x="200" y="96" width="8" height="8" rx="2"/>
+    <rect x="168" y="112" width="8" height="8" rx="2"/>
+    <rect x="192" y="120" width="16" height="8" rx="2"/>
+    <rect x="160" y="128" width="16" height="8" rx="2"/>
+    <rect x="184" y="136" width="8" height="16" rx="2"/>
+    <rect x="200" y="128" width="8" height="8" rx="2"/>
+
+    <!-- Bottom-Mid & Bottom-Right Data -->
+    <rect x="92" y="160" width="16" height="8" rx="2"/>
+    <rect x="116" y="160" width="8" height="16" rx="2"/>
+    <rect x="132" y="160" width="16" height="8" rx="2"/>
+    <rect x="160" y="160" width="8" height="8" rx="2"/>
+    <rect x="176" y="160" width="16" height="8" rx="2"/>
+    <rect x="200" y="160" width="8" height="16" rx="2"/>
+    
+    <rect x="92" y="176" width="8" height="16" rx="2"/>
+    <rect x="108" y="184" width="16" height="8" rx="2"/>
+    <rect x="132" y="176" width="8" height="8" rx="2"/>
+    <rect x="168" y="176" width="16" height="8" rx="2"/>
+    <rect x="192" y="184" width="8" height="8" rx="2"/>
+
+    <rect x="100" y="200" width="16" height="8" rx="2"/>
+    <rect x="124" y="196" width="8" height="16" rx="2"/>
+    <rect x="140" y="200" width="16" height="8" rx="2"/>
+    <rect x="164" y="200" width="8" height="8" rx="2"/>
+    <rect x="180" y="196" width="16" height="16" rx="2"/>
+    <rect x="204" y="204" width="8" height="8" rx="2"/>
+  </g>
+
+  <!-- Center App Emblem Badge -->
+  <rect x="90" y="90" width="60" height="60" rx="16" fill="#181B26" stroke="#FFE500" stroke-width="2"/>
+  <circle cx="120" cy="120" r="22" fill="#FFE500"/>
+  <!-- Math symbols in emblem -->
+  <text x="120" y="127" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="20" font-weight="900" fill="#0A0B0E" text-anchor="middle">±</text>
+</svg>

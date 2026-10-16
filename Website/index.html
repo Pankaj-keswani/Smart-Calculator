@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartCalc AI — Voice-Powered & Floating Smart Calculator for Android</title>
+  <meta name="description" content="SmartCalc AI is the ultimate offline smart calculator for Android. Natural spoken voice math with noise filtering, floating PiP overlay over any app, home screen widget, tactile haptics, and 100% private offline intelligence. Available on Google Play.">
+  <meta name="theme-color" content="#0a0c10">
+
+  <!-- Open Graph / Meta -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="SmartCalc AI — The Ultimate Smart Calculator">
+  <meta property="og:description" content="Speak math naturally. Float over any app. 100% offline, zero ads, zero tracking.">
+  <meta property="og:image" content="assets/app-screenshot.png">
+
+  <!-- Favicon -->
+  <link rel="icon" href="assets/icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icon.png">
+
+  <!-- Google Fonts: Outfit & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "SmartCalc AI",
+    "operatingSystem": "ANDROID",
+    "applicationCategory": "UtilitiesApplication",
+    "description": "Voice-powered offline smart calculator with floating PiP overlay, home screen widget, and zero ads.",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Ambient background glow blurs -->
+  <div class="glow-orb glow-orb-gold" aria-hidden="true"></div>
+  <div class="glow-orb glow-orb-cyan" aria-hidden="true"></div>
+  <div class="glow-orb glow-orb-purple" aria-hidden="true"></div>
+
+  <!-- ══════════════════════ NAVIGATION ══════════════════════ -->
+  <header class="nav" id="topNav">
+    <div class="container nav-inner">
+      <a class="brand" href="#top" aria-label="SmartCalc AI Home">
+        <div class="brand-icon-wrap">
+          <img src="assets/icon.png" alt="SmartCalc AI Logo">
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">SmartCalc<span style="color:var(--accent-gold)">AI</span></span>
+          <span class="brand-badge">Offline · Private</span>
+        </div>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary Navigation">
+        <a href="#features">Features</a>
+        <a href="#voice-ai">Voice AI</a>
+        <a href="#floating-pip">Floating PiP</a>
+        <a href="#widget">Widget</a>
+        <a href="#scientific">Scientific</a>
+        <a href="#faq">FAQ</a>
+        <a href="privacy-policy.html">Privacy Policy</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="btn btn-secondary btn-sm" href="privacy-policy.html">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+          Privacy Policy
+        </a>
+        <a class="btn btn-primary btn-sm" href="#" rel="noopener" aria-label="Get SmartCalc AI on Google Play">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3.6 1.8 13.3 12 3.6 22.2c-.4-.3-.6-.8-.6-1.4V3.2c0-.6.2-1.1.6-1.4zm11 9.4 2.4-2.5 4.3 2.5c.8.5.8 1.5 0 2l-4.3 2.5-2.4-2.5L14.6 12zM5.2 1.2l9.7 2.1-3.4 3.5L5.2 1.2zm0 21.6 6.3-5.6 3.4 3.5-9.7 2.1z"/></svg>
+          Get it on Google Play
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-label="Toggle navigation menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Slide Menu -->
+    <div class="mobile-menu" id="mobileMenu" hidden>
+      <a href="#features">Features</a>
+      <a href="#voice-ai">Voice AI Recognition</a>
+      <a href="#floating-pip">Floating Picture-in-Picture</a>
+      <a href="#widget">Home Screen Widget</a>
+      <a href="#scientific">Scientific Calculator</a>
+      <a href="#faq">Frequently Asked Questions</a>
+      <a class="btn btn-secondary btn-md" href="privacy-policy.html" style="width:100%; justify-content:center;">
+        🔒 Privacy Policy
+      </a>
+      <a class="btn btn-primary btn-md" href="#" rel="noopener" style="width:100%; justify-content:center;">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3.6 1.8 13.3 12 3.6 22.2c-.4-.3-.6-.8-.6-1.4V3.2c0-.6.2-1.1.6-1.4zm11 9.4 2.4-2.5 4.3 2.5c.8.5.8 1.5 0 2l-4.3 2.5-2.4-2.5L14.6 12zM5.2 1.2l9.7 2.1-3.4 3.5L5.2 1.2zm0 21.6 6.3-5.6 3.4 3.5-9.7 2.1z"/></svg>
+        Get it on Google Play
+      </a>
+    </div>
+  </header>
+
+  <main id="main">
+    <span id="top"></span>
+
+    <!-- ══════════════════════ HERO SECTION ══════════════════════ -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <div class="pill-badge">
+            <span class="pill-pulse"></span>
+            100% Offline On-Device Intelligence
+          </div>
+          <h1 class="hero-title">
+            The Next-Gen Smart Calculator.<br>
+            <span class="grad-text">Voice-Powered.</span> Floating. Unstoppable.
+          </h1>
+          <p class="hero-subtitle">
+            Speak math equations naturally, float a mini-calculator over WhatsApp or Excel, calculate straight from your home screen widget, and enjoy lightning-fast tactile calculations with zero ads and zero cloud tracking.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary btn-lg" href="#" rel="noopener">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3.6 1.8 13.3 12 3.6 22.2c-.4-.3-.6-.8-.6-1.4V3.2c0-.6.2-1.1.6-1.4zm11 9.4 2.4-2.5 4.3 2.5c.8.5.8 1.5 0 2l-4.3 2.5-2.4-2.5L14.6 12zM5.2 1.2l9.7 2.1-3.4 3.5L5.2 1.2zm0 21.6 6.3-5.6 3.4 3.5-9.7 2.1z"/></svg>
+              Get it on Google Play
+            </a>
+            <a class="btn btn-secondary btn-lg" href="#demo">
+              ▶ Try Interactive Keypad
+            </a>
+          </div>
+
+          <ul class="hero-perks">
+            <li class="hero-perk-item">
+              <span class="hero-perk-icon">✓</span> 100% Free & No Ads
+            </li>
+            <li class="hero-perk-item">
+              <span class="hero-perk-icon">✓</span> Zero Telemetry / Cloud Logs
+            </li>
+            <li class="hero-perk-item">
+              <span class="hero-perk-icon">✓</span> Works In Airplane Mode
+            </li>
+          </ul>
+        </div>
+
+        <!-- 3D-Look Live Interactive Phone Mockup -->
+        <div class="hero-phone-wrap" id="demo">
+          <!-- Floating interactive chips around phone -->
+          <div class="float-chip chip-voice" aria-hidden="true">
+            <div class="float-chip-icon icon-voice">🎤</div>
+            <div>
+              <div class="float-chip-title">Voice AI Noise Filter</div>
+              <div class="float-chip-desc">"Hey 25% of 1200" → 300</div>
+            </div>
+          </div>
+
+          <div class="float-chip chip-pip" aria-hidden="true">
+            <div class="float-chip-icon icon-pip">🪟</div>
+            <div>
+              <div class="float-chip-title">Floating PiP Overlay</div>
+              <div class="float-chip-desc">Drags over any app seamlessly</div>
+            </div>
+          </div>
+
+          <div class="phone-mockup">
+            <!-- Top Status Bar -->
+            <div class="phone-notch-bar">
+              <span>9:41</span>
+              <div class="camera-hole"></div>
+              <span>5G 🔋 100%</span>
+            </div>
+
+            <!-- In-App Header Bar -->
+            <div class="app-header">
+              <div class="mode-toggle-group">
+                <button class="mode-pill active" id="modeKeypadBtn" type="button">Keypad</button>
+                <button class="mode-pill" id="modeVoiceBtn" type="button">Voice</button>
+              </div>
+              <div class="app-icons-right">
+                <button class="sound-toggle-btn" id="soundToggleBtn" type="button" title="Tactile Clicks: On">🔔</button>
+                <span style="font-size: 16px; cursor: pointer;">⋮</span>
+              </div>
+            </div>
+
+            <!-- Live Calculator Display Screen -->
+            <div class="calc-display">
+              <div class="calc-expr-container" id="calcExprContainer">
+                <div class="calc-expression" id="calcExpr">45 × 12 + 80</div>
+              </div>
+              <div class="calc-result" id="calcResult">620</div>
+              <div class="calc-status-hint" id="calcStatus"></div>
+            </div>
+
+            <!-- Voice Mic Banner Pill -->
+            <div class="mic-pill-bar" id="micPillBar">
+              <div class="mic-pill-left">
+                <span class="mic-indicator-dot"></span>
+                <span>AI Voice Mic</span>
+              </div>
+              <span class="mic-toggle-label">OFF</span>
+            </div>
+
+            <!-- Live Interactive Keypad -->
+            <div class="calc-keypad" id="calcKeypad">
+              <button class="calc-btn btn-ac" data-val="AC" type="button">AC</button>
+              <button class="calc-btn btn-op" data-val="()" type="button">( )</button>
+              <button class="calc-btn btn-op" data-val="%" type="button">%</button>
+              <button class="calc-btn btn-op" data-val="÷" type="button">÷</button>
+
+              <button class="calc-btn btn-num" data-val="7" type="button">7</button>
+              <button class="calc-btn btn-num" data-val="8" type="button">8</button>
+              <button class="calc-btn btn-num" data-val="9" type="button">9</button>
+              <button class="calc-btn btn-op" data-val="×" type="button">×</button>
+
+              <button class="calc-btn btn-num" data-val="4" type="button">4</button>
+              <button class="calc-btn btn-num" data-val="5" type="button">5</button>
+              <button class="calc-btn btn-num" data-val="6" type="button">6</button>
+              <button class="calc-btn btn-op" data-val="-" type="button">−</button>
+
+              <button class="calc-btn btn-num" data-val="1" type="button">1</button>
+              <button class="calc-btn btn-num" data-val="2" type="button">2</button>
+              <button class="calc-btn btn-num" data-val="3" type="button">3</button>
+              <button class="calc-btn btn-op" data-val="+" type="button">+</button>
+
+              <button class="calc-btn btn-num" data-val="0" type="button">0</button>
+              <button class="calc-btn btn-num" data-val="." type="button">.</button>
+              <button class="calc-btn btn-num" data-val="⌫" type="button">⌫</button>
+              <button class="calc-btn btn-action" data-val="=" type="button">=</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════ MARQUEE TICKER ══════════════════════ -->
+    <div class="marquee-strip" aria-hidden="true">
+      <div class="marquee-track">
+        <span>⚡ 100% Offline AI</span>
+        <span>🎤 Conversational Voice Recognition</span>
+        <span>🪟 Floating PiP Multitasking Bubble</span>
+        <span>📱 Android Home Screen Widget</span>
+        <span>📐 Scientific Suite</span>
+        <span>📳 Crisp Tactile Haptic Engine</span>
+        <span>📜 Infinite History Tape</span>
+        <span>🛡️ Zero Ads & Trackers Forever</span>
+        <span>⚡ 100% Offline AI</span>
+        <span>🎤 Conversational Voice Recognition</span>
+        <span>🪟 Floating PiP Multitasking Bubble</span>
+        <span>📱 Android Home Screen Widget</span>
+        <span>📐 Scientific Suite</span>
+        <span>📳 Crisp Tactile Haptic Engine</span>
+        <span>📜 Infinite History Tape</span>
+        <span>🛡️ Zero Ads & Trackers Forever</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════ STATS SECTION ══════════════════════ -->
+    <section class="stats-section">
+      <div class="container stats-grid">
+        <div class="stat-card reveal">
+          <div class="stat-number"><span data-count="100">0</span>%</div>
+          <div class="stat-label">Offline & On-Device</div>
+          <div class="stat-sub">Zero network latency, 100% private</div>
+        </div>
+        <div class="stat-card reveal">
+          <div class="stat-number">&lt; <span data-count="10">0</span>ms</div>
+          <div class="stat-label">Calculation Latency</div>
+          <div class="stat-sub">Instantaneous real-time previews</div>
+        </div>
+        <div class="stat-card reveal">
+          <div class="stat-number"><span data-count="0">0</span></div>
+          <div class="stat-label">Ads or Cloud Trackers</div>
+          <div class="stat-sub">No analytics SDKs or telemetry</div>
+        </div>
+        <div class="stat-card reveal">
+          <div class="stat-number">4.9 ★</div>
+          <div class="stat-label">Tactile Precision Rating</div>
+          <div class="stat-sub">Engineered for clean, rapid inputs</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════ FEATURE 1: VOICE AI SHOWCASE ══════════════════════ -->
+    <section class="section section-alt" id="voice-ai">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="section-tag">Spoken AI Intelligence</span>
+          <h2 class="section-title">Speak Math Naturally. <span class="grad-text">We Filter the Rest.</span></h2>
+          <p class="section-desc">
+            No robotic syntax required. Talk the way you naturally speak in real life. SmartCalc AI's on-device natural language pipeline strips greetings, conversational fillers, and computes your answer instantaneously.
+          </p>
+        </div>
+
+        <div class="voice-showcase-grid">
+          <div class="voice-copy reveal">
+            <h3 style="font-size:24px; font-weight:800; color:#fff;">Automatic Conversational Noise Stripping</h3>
+            <p style="color:var(--text-muted); font-size:15px; line-height:1.6;">
+              Saying <em>"Hey bro, can you please calculate 15% discount on 2400 plus 350 shipping"</em>?
+              SmartCalc AI automatically strips away greetings like <em>"hey"</em>, <em>"bro"</em>, <em>"please calculate"</em>, translates the numbers into <code>(15% × 2400) + 350</code>, and hands you the result in milliseconds.
+            </p>
+
+            <ul class="feature-tick-list">
+              <li class="feature-tick-item">
+                <span class="tick-icon">✓</span>
+                <div><strong>Smart Silence Detection:</strong> Automatically wraps up and evaluates after 3.5 seconds of silence — no awkward button hunting.</div>
+              </li>
+              <li class="feature-tick-item">
+                <span class="tick-icon">✓</span>
+                <div><strong>Multi-Lingual Conversational Words:</strong> Strips English & Hindi colloquialisms (<em>namaste, batao, suno, bhai, dude, okay, um, so</em>).</div>
+              </li>
+              <li class="feature-tick-item">
+                <span class="tick-icon">✓</span>
+                <div><strong>100% In-Memory Audio:</strong> Spoken audio never touches your disk storage and is never uploaded to any remote cloud.</div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Interactive Voice Sandbox Card -->
+          <div class="voice-sandbox-card reveal">
+            <div class="sandbox-head">
+              <div class="sandbox-title">
+                <span>🎙️ Live Noise-Stripper Simulator</span>
+              </div>
+              <span class="live-badge">Interactive Demo</span>
+            </div>
+
+            <div class="sample-phrases-label">Click a spoken phrase to simulate live processing:</div>
+            <div class="sample-chips">
+              <button class="sample-chip active" type="button" data-phrase="Hey please calculate 18% tip on 420">"Hey please calculate 18% tip on 420"</button>
+              <button class="sample-chip" type="button" data-phrase="What is 55 times 12 minus 140">"What is 55 times 12 minus 140"</button>
+              <button class="sample-chip" type="button" data-phrase="Bro tell me 12500 divided by 5 plus 1500">"Bro tell me 12500 divided by 5 plus 1500"</button>
+              <button class="sample-chip" type="button" data-phrase="Can you calculate square root of 256 plus 64">"Can you calculate square root of 256 plus 64"</button>
+            </div>
+
+            <div class="voice-input-wrap">
+              <input class="voice-text-input" id="voiceTextInput" type="text" value="Hey please calculate 18% tip on 420" placeholder="Type or click a spoken phrase...">
+              <button class="voice-mic-sim-btn" id="voiceMicSimBtn" type="button" title="Simulate Voice Input">🎤</button>
+            </div>
+
+            <!-- Animated Waveform Bars -->
+            <div class="audio-wave-container" id="audioWaveContainer">
+              <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+              <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+              <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+              <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+              <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+            </div>
+
+            <!-- Pipeline Visual Breakdown -->
+            <div class="pipeline-breakdown">
+              <div class="pipeline-row">
+                <span class="pipeline-label">Raw Spoken Input:</span>
+                <span class="pipeline-value" id="pipeRawSpoken">"Hey please calculate 18% tip on 420"</span>
+              </div>
+              <div class="pipeline-row">
+                <span class="pipeline-label">Stripped Noise Words:</span>
+                <span class="pipeline-value" id="pipeStrippedNoise">
+                  <span class="noise-stripped">~~hey~~</span> <span class="noise-stripped">~~please~~</span> <span class="noise-stripped">~~calculate~~</span> <span class="noise-stripped">~~tip on~~</span>
+                </span>
+              </div>
+              <div class="pipeline-row">
+                <span class="pipeline-label">Engine Equation:</span>
+                <span class="pipeline-value pipeline-math-expr" id="pipeMathFormula">18% × 420</span>
+              </div>
+              <div class="pipeline-row" style="border-top:1px solid rgba(255,255,255,0.08); padding-top:8px;">
+                <span class="pipeline-label" style="color:#fff; font-size:14px;">Instant Result:</span>
+                <span class="pipeline-value pipeline-final-ans" id="pipeFinalAnswer">75.6</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════ FEATURE 2: PIP FLOATING OVERLAY ══════════════════════ -->
+    <section class="section" id="floating-pip">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="section-tag">Multitask Like a Pro</span>
+          <h2 class="section-title">Picture-in-Picture <span class="grad-text-cyan">Floating Overlay</span></h2>
+          <p class="section-desc">
+            No more switching back and forth between apps. Keep a lightweight calculator bubble floating right over WhatsApp, Amazon, Google Sheets, or your PDF invoices.
+          </p>
+        </div>
+
+        <div class="pip-showcase-grid">
+          <div class="pip-copy reveal">
+            <h3 style="font-size:24px; font-weight:800; color:#fff;">Never Lose Your Context</h3>
+            <p style="color:var(--text-muted); font-size:15px; line-height:1.6;">
+              Split expenses with roommates while chatting on WhatsApp, tally shopping discounts directly in Amazon, or double-check invoice totals on bank portals without leaving your screen.
+            </p>
+
+            <ul class="feature-tick-list">
+              <li class="feature-tick-item">
+                <span class="tick-icon">✓</span>
+                <div><strong>Draggable Anywhere:</strong> Touch and glide the overlay across any part of your phone screen.</div>
+              </li>
+              <li class="feature-tick-item">
+                <span class="tick-icon">✓</span>
+                <div><strong>Quick Collapse &amp; Expand:</strong> Collapse into a minimal unobtrusive orb when reading, expand when you're ready to compute.</div>
+              </li>
+              <li class="feature-tick-item">
+                <span class="tick-icon">✓</span>
+                <div><strong>Zero Screenshot / Screen Read:</strong> Runs in an isolated Android window without ever reading or intercepting your screen contents.</div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Interactive Draggable PiP Canvas Mockup -->
+          <div class="mock-desktop-canvas reveal" id="mockDesktopCanvas">
+            <!-- Simulated background app (e.g. WhatsApp / Shopping chat) -->
+            <div class="under-app-view">
+              <div class="under-app-header"></div>
+              <div class="under-chat-bubble chat-left">
+                "Hey! Can you check the dinner bill? Pizza was ₹850, drinks were ₹420, plus 18% GST and ₹60 delivery."
+              </div>
+              <div class="under-chat-bubble chat-right">
+                "Sure, calculating right now using the floating calculator bubble!"
+              </div>
+              <div class="under-chat-bubble chat-left">
+                "Awesome, let me know each person's share (split by 3)."
+              </div>
+            </div>
+
+            <!-- Draggable Floating PiP Calculator -->
+            <div class="floating-pip-widget" id="floatingPipWidget">
+              <div class="pip-header-bar">
+                <div class="pip-header-left">
+                  <span>🪟</span>
+                  <span>SmartCalc PiP (Drag me!)</span>
+                </div>
+                <div class="pip-controls">
+                  <button class="pip-btn-ctrl" id="pipMinBtn" type="button" title="Minimize/Expand">—</button>
+                </div>
+              </div>
+
+              <div class="pip-body" id="pipBody">
+                <div class="pip-display">
+                  <div class="pip-input-text" id="pipInputText">850 + 420 + 60</div>
+                  <div class="pip-result-text" id="pipResultText">1,330</div>
+                </div>
+
+                <div class="pip-key-grid">
+                  <button class="pip-kbtn" type="button">C</button>
+                  <button class="pip-kbtn" type="button">÷</button>
+                  <button class="pip-kbtn" type="button">×</button>
+                  <button class="pip-kbtn" type="button">−</button>
+                  <button class="pip-kbtn" type="button">7</button>
+                  <button class="pip-kbtn" type="button">8</button>
+                  <button class="pip-kbtn" type="button">9</button>
+                  <button class="pip-kbtn" type="button">+</button>
+                  <button class="pip-kbtn" type="button">4</button>
+                  <button class="pip-kbtn" type="button">5</button>
+                  <button class="pip-kbtn" type="button">6</button>
+                  <button class="pip-kbtn pip-kbtn-gold" type="button">=</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════ FEATURE 3: HOME SCREEN WIDGET ══════════════════════ -->
+    <section class="section section-alt" id="widget">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="section-tag">Glanceable Power</span>
+          <h2 class="section-title">Calculate Directly From Your <span class="grad-text">Home Screen</span></h2>
+          <p class="section-desc">
+            No need to launch the app for quick sums. Pin the interactive SmartCalc AI widget directly to your Android launcher.
+          </p>
+        </div>
+
+        <div class="widget-showcase-grid">
+          <div class="homescreen-mockup reveal">
+            <div class="hs-status-bar">
+              <span>Smart Launcher</span>
+              <span>10:24 AM</span>
+            </div>
+
+            <!-- The Widget Preview -->
+            <div class="hs-widget-card" id="hsWidgetCard">
+              <div class="hs-widget-head">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <img src="assets/icon.png" width="18" height="18" alt="" style="border-radius:4px;">
+                  <span>SmartCalc Widget</span>
+                </div>
+                <span>⚡ Instant</span>
+              </div>
+              <div class="hs-widget-display">
+                <div class="hs-widget-expr">12 × 1500</div>
+                <div class="hs-widget-val">18,000</div>
+              </div>
+              <div class="hs-widget-row">
+                <button class="hs-wbtn" type="button">C</button>
+                <button class="hs-wbtn" type="button">÷</button>
+                <button class="hs-wbtn" type="button">×</button>
+                <button class="hs-wbtn" type="button">−</button>
+              </div>
+              <div class="hs-widget-row">
+                <button class="hs-wbtn" type="button">7</button>
+                <button class="hs-wbtn" type="button">8</button>
+                <button class="hs-wbtn" type="button">9</button>
+                <button class="hs-wbtn" type="button">+</button>
+              </div>
+            </div>
+
+            <div class="hs-app-grid">
+              <div class="hs-app-icon">📞</div>
+              <div class="hs-app-icon">💬</div>
+              <div class="hs-app-icon">📷</div>
+              <div class="hs-app-icon">📁</div>
+            </div>
+          </div>
+
+          <div class="widget-copy reveal">
+            <h3 style="font-size:24px; font-weight:800; color:#fff;">Always One Tap Away</h3>
+            <p style="color:var(--text-muted); font-size:15px; line-height:1.6;">
+              Whether tallying daily bills, calculating unit pricing in your car, or keeping track of expense tallies, your home screen widget gives you full computational capability right on your phone's desktop.
+            </p>
+
+            <div style="margin-top: 20px;">
+              <span style="font-size:13px; font-weight:700; color:#fff;">Switch Theme Accent:</span>
+              <div class="theme-selector-pills">
+                <button class="theme-pill-btn active" type="button" data-theme="gold">Gold OLED</button>
+                <button class="theme-pill-btn" type="button" data-theme="cyber">Cyber Cyan</button>
+                <button class="theme-pill-btn" type="button" data-theme="mint">Neon Mint</button>
+              </div>
+            </div>
+
+            <ul class="feature-tick-list" style="margin-top: 24px;">
+              <li class="feature-tick-item">
+                <span class="tick-icon">✓</span>
+                <div><strong>Tactile Touch Response:</strong> Built-in vibration haptics on widget keys for tactile reassurance.</div>
+              </li>
+              <li class="feature-tick-item">
+                <span class="tick-icon">✓</span>
+                <div><strong>Instant Sync:</strong> Calculations carried out in the widget appear right in your history log.</div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════ FEATURE 4: SCIENTIFIC & ENGINE ══════════════════════ -->
+    <section class="section" id="scientific">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="section-tag">Mathematical Precision</span>
+          <h2 class="section-title">Scientific Suite &amp; <span class="grad-text">Flawless Engine</span></h2>
+          <p class="section-desc">
+            Engineered with deep safeguards. No accidental clears, no cut-off numbers, and full trigonometric &amp; logarithmic precision.
+          </p>
+        </div>
+
+        <div class="sci-grid reveal">
+          <div class="sci-key-card">sin / cos / tan</div>
+          <div class="sci-key-card">asin / acos / atan</div>
+          <div class="sci-key-card">log₁₀ / ln</div>
+          <div class="sci-key-card">√x / ∛x</div>
+          <div class="sci-key-card">x² / xʸ</div>
+          <div class="sci-key-card">π / e / n!</div>
+        </div>
+
+        <div class="bento-grid" style="margin-top: 40px;">
+          <div class="bento-card bento-wide reveal">
+            <div class="bento-icon-box">🛡️</div>
+            <h3 class="bento-title">Smart Pending Operator Safety</h3>
+            <p class="bento-desc">
+              In ordinary calculators, accidentally tapping <code>=</code> after an operator (like <code>50 + 20 × =</code>) wipes the screen to 0. SmartCalc AI's intelligent safety engine detects pending operators, preserves your work, safely computes the equation, and alerts you gently without clearing your hard work.
+            </p>
+          </div>
+
+          <div class="bento-card reveal">
+            <div class="bento-icon-box">📜</div>
+            <h3 class="bento-title">Infinite Smooth Scroll</h3>
+            <p class="bento-desc">
+              Entering a 60-digit number? Smooth horizontal auto-scroll ensures your numbers never freeze, clip, or truncate.
+            </p>
+          </div>
+
+          <div class="bento-card reveal">
+            <div class="bento-icon-box">📳</div>
+            <h3 class="bento-title">Hardware Tactile Clicks</h3>
+            <p class="bento-desc">
+              Subtle crisp haptics on keypad clicks, distinctive double-pulse pattern on equals, and vibration reassurance.
+            </p>
+          </div>
+
+          <div class="bento-card reveal">
+            <div class="bento-icon-box">⚖️</div>
+            <h3 class="bento-title">Auto-Balanced Parentheses</h3>
+            <p class="bento-desc">
+              Automatic nested balance insertion ensures your math expressions remain valid without manually counting closing brackets.
+            </p>
+          </div>
+
+          <div class="bento-card reveal">
+            <div class="bento-icon-box">🔋</div>
+            <h3 class="bento-title">True OLED Dark Theme</h3>
+            <p class="bento-desc">
+              Pure pitch-black OLED background saves battery life on AMOLED screens while keeping high-contrast readability.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════ PRIVACY HIGHLIGHT ══════════════════════ -->
+    <section class="section" id="privacy-section">
+      <div class="container">
+        <div class="privacy-highlight-box reveal">
+          <div>
+            <span class="privacy-badge-pill">Zero Data Collection Guarantee</span>
+            <h2 class="privacy-title">Your Numbers Are Yours Alone.</h2>
+            <p class="privacy-desc">
+              We believe financial numbers, budget tallies, and voice queries are deeply private. SmartCalc AI contains zero advertising SDKs, zero user tracking, zero telemetries, and zero remote cloud database connections.
+            </p>
+            <div style="margin-top: 20px;">
+              <a class="btn btn-outline-gold btn-md" href="privacy-policy.html">
+                Read Official Privacy Policy &rarr;
+              </a>
+            </div>
+          </div>
+          <div class="privacy-points">
+            <div class="priv-item"><span style="color:#10B981">✓</span> 100% On-Device Calculations</div>
+            <div class="priv-item"><span style="color:#10B981">✓</span> No Account or Login Ever</div>
+            <div class="priv-item"><span style="color:#10B981">✓</span> Audio Processed in RAM Only</div>
+            <div class="priv-item"><span style="color:#10B981">✓</span> One-Tap History Privacy Wipe</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════ INTERACTIVE FEEDBACK WIDGET ══════════════════════ -->
+    <section class="section section-alt" id="feedback">
+      <div class="container">
+        <div class="feedback-box reveal">
+          <h2 style="font-size:32px; font-weight:800; color:#fff;">Tell Us Your Thoughts</h2>
+          <p style="color:var(--text-muted); font-size:15px; margin-top:8px;">
+            Feature requests, feedback, or bugs — your voice directly shapes every SmartCalc AI update.
+          </p>
+
+          <form id="feedbackForm" novalidate>
+            <div class="stars-rating-bar" role="radiogroup" aria-label="Rate the app">
+              <button class="star-btn" type="button" data-star="1" aria-label="1 Star">⭐</button>
+              <button class="star-btn" type="button" data-star="2" aria-label="2 Stars">⭐</button>
+              <button class="star-btn" type="button" data-star="3" aria-label="3 Stars">⭐</button>
+              <button class="star-btn" type="button" data-star="4" aria-label="4 Stars">⭐</button>
+              <button class="star-btn active" type="button" data-star="5" aria-label="5 Stars">⭐</button>
+            </div>
+            <div class="rating-caption" id="ratingCaption">5 stars — Pure perfection! 🚀</div>
+
+            <div class="fb-topic-pills">
+              <button class="fb-topic-chip active" type="button">💡 Feature Idea</button>
+              <button class="fb-topic-chip" type="button">🎤 Voice AI</button>
+              <button class="fb-topic-chip" type="button">🪟 Overlay Mode</button>
+              <button class="fb-topic-chip" type="button">🐛 Bug Report</button>
+            </div>
+
+            <textarea class="fb-textarea" id="fbMessage" placeholder="What do you think of SmartCalc AI? Share any ideas or feedback..." required></textarea>
+            <input class="fb-email-input" id="fbEmail" type="email" placeholder="Your email (optional — for updates)">
+
+            <button class="btn btn-primary btn-md" type="submit" style="width:100%;">
+              Send Feedback 🚀
+            </button>
+            <div class="fb-toast-msg" id="fbToastMsg" role="status"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════ FAQ ACCORDION ══════════════════════ -->
+    <section class="section" id="faq">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="section-tag">Got Questions?</span>
+          <h2 class="section-title">Frequently Asked Questions</h2>
+          <p class="section-desc">Everything you need to know about SmartCalc AI's features, privacy, and architecture.</p>
+        </div>
+
+        <div class="faq-wrap reveal">
+          <div class="faq-card open">
+            <button class="faq-trigger" type="button">
+              <span>How does voice calculation work without an internet connection?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-content">
+              SmartCalc AI leverages Android's built-in offline on-device speech recognition coupled with our custom token-filtering pipeline. Even when you are completely offline, in flight mode, or in remote areas, your spoken words are converted into equations in local memory without transmitting a single byte over the web.
+            </div>
+          </div>
+
+          <div class="faq-card">
+            <button class="faq-trigger" type="button">
+              <span>How do I use the floating PiP overlay over other apps?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-content">
+              Simply tap the PiP button in the app's top bar or enable it in Settings. Android will ask for "Display Over Other Apps" permission once. Afterwards, a compact floating calculator will hover over WhatsApp, Amazon, or Excel. You can drag it anywhere, collapse it to a bubble, or tap to calculate while keeping your active app visible.
+            </div>
+          </div>
+
+          <div class="faq-card">
+            <button class="faq-trigger" type="button">
+              <span>Why doesn't pressing '=' after an operator clear the screen to 0?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-content">
+              Standard calculators often trigger a reset error if you accidentally tap an operator like '+' or '×' right before pressing '='. SmartCalc AI features our proprietary Pending Operator Safety engine: it safely computes the expression up to the last valid number or notifies you that the operator is still pending, ensuring your calculations are never accidentally lost.
+            </div>
+          </div>
+
+          <div class="faq-card">
+            <button class="faq-trigger" type="button">
+              <span>How do I add the calculator widget to my home screen?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-content">
+              Touch and hold any empty spot on your Android home screen, tap "Widgets", scroll down to "SmartCalc AI", and drag the widget to your home screen. You can customize its size and theme directly from the app.
+            </div>
+          </div>
+
+          <div class="faq-card">
+            <button class="faq-trigger" type="button">
+              <span>Does SmartCalc AI collect or store any of my personal data?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-content">
+              Absolutely not. SmartCalc AI is built on a strict zero-data collection guarantee. We do not maintain any cloud databases, we don't have analytics SDKs, and we don't collect personal information or microphone audio. Everything stays locked inside your device's private sandboxed memory. Read our full policy on our <a href="privacy-policy.html" style="color:var(--accent-gold);">Privacy Policy page</a>.
+            </div>
+          </div>
+
+          <div class="faq-card">
+            <button class="faq-trigger" type="button">
+              <span>Is SmartCalc AI free and ad-free?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-content">
+              Yes! SmartCalc AI is completely free to use with zero advertisements, zero popups, and zero banners. You get an uninterrupted, clean computing experience forever.
+            </div>
+          </div>
+
+          <div class="faq-card">
+            <button class="faq-trigger" type="button">
+              <span>Where can I download SmartCalc AI?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-content">
+              SmartCalc AI is distributed exclusively on the Google Play Store for Android devices. Tap the "Get it on Google Play" button on this website or search for "SmartCalc AI" directly in the Play Store on your smartphone to install the verified release.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════ FINAL CTA & GOOGLE PLAY HUB ══════════════════════ -->
+    <section class="section" id="download">
+      <div class="container">
+        <div class="download-card reveal">
+          <div class="download-info-side">
+            <span class="pill-badge">Official Release Available</span>
+            <h2 class="download-title">Ready for Smarter Calculations?</h2>
+            <p style="color:var(--text-muted); font-size:16px; line-height:1.6;">
+              SmartCalc AI is available exclusively on Google Play. 100% offline, privacy-first, and packed with voice recognition, floating PiP, and home screen widgets.
+            </p>
+
+            <div class="download-btns-row">
+              <a class="btn btn-primary btn-lg" href="#" rel="noopener">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3.6 1.8 13.3 12 3.6 22.2c-.4-.3-.6-.8-.6-1.4V3.2c0-.6.2-1.1.6-1.4zm11 9.4 2.4-2.5 4.3 2.5c.8.5.8 1.5 0 2l-4.3 2.5-2.4-2.5L14.6 12zM5.2 1.2l9.7 2.1-3.4 3.5L5.2 1.2zm0 21.6 6.3-5.6 3.4 3.5-9.7 2.1z"/></svg>
+                Get it on Google Play
+              </a>
+              <a class="btn btn-secondary btn-lg" href="privacy-policy.html">
+                🔒 Privacy Policy
+              </a>
+            </div>
+          </div>
+
+          <div class="qr-code-box">
+            <img class="qr-code-img" src="assets/qr-code.svg" alt="Scan QR Code to open SmartCalc AI on Google Play">
+            <span class="qr-subtext">📱 Scan with phone camera to open SmartCalc AI on Google Play</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ══════════════════════ FOOTER ══════════════════════ -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-brand-side">
+        <a class="brand" href="#top">
+          <div class="brand-icon-wrap">
+            <img src="assets/icon.png" alt="SmartCalc AI Icon">
+          </div>
+          <span class="brand-name">SmartCalc<span style="color:var(--accent-gold)">AI</span></span>
+        </a>
+        <p>
+          The next-generation smart calculator for Android. Voice-powered, floating overlay, home screen widgets, and zero cloud data collection.
+        </p>
+      </div>
+
+      <div>
+        <h4 class="footer-col-title">Product</h4>
+        <div class="footer-col-links">
+          <a href="#features">Key Features</a>
+          <a href="#voice-ai">Voice Recognition</a>
+          <a href="#floating-pip">Floating Overlay</a>
+          <a href="#widget">Home Screen Widget</a>
+          <a href="#scientific">Scientific Mode</a>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="footer-col-title">Get the App</h4>
+        <div class="footer-col-links">
+          <a href="#" rel="noopener">Google Play Store</a>
+          <a href="#download">Scan QR Code</a>
+          <a href="#faq">Frequently Asked Questions</a>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="footer-col-title">Privacy &amp; Support</h4>
+        <div class="footer-col-links">
+          <a href="privacy-policy.html">Privacy Policy</a>
+          <a href="#feedback">Send Feedback</a>
+          <a href="mailto:support@smartcalc.ai">support@smartcalc.ai</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container footer-bottom-bar">
+      <div>&copy; <span id="currentYear">2026</span> SmartCalc AI. Built with on-device local intelligence. All rights reserved.</div>
+      <div>
+        <a class="btn btn-outline-gold btn-sm" href="privacy-policy.html">
+          Privacy Policy
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Sticky Mobile Quick Action Bar -->
+  <div class="sticky-mobile-bar" id="stickyMobileBar">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <img src="assets/icon.png" width="28" height="28" alt="" style="border-radius:6px;">
+      <div>
+        <div style="font-size:12px; font-weight:800; color:#fff;">SmartCalc AI</div>
+        <div style="font-size:10px; color:var(--accent-gold);">100% Offline · Google Play</div>
+      </div>
+    </div>
+    <a class="btn btn-primary btn-sm" href="#" rel="noopener">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M3.6 1.8 13.3 12 3.6 22.2c-.4-.3-.6-.8-.6-1.4V3.2c0-.6.2-1.1.6-1.4zm11 9.4 2.4-2.5 4.3 2.5c.8.5.8 1.5 0 2l-4.3 2.5-2.4-2.5L14.6 12zM5.2 1.2l9.7 2.1-3.4 3.5L5.2 1.2zm0 21.6 6.3-5.6 3.4 3.5-9.7 2.1z"/></svg>
+      Google Play
+    </a>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/main.js"></script>
+  <script src="js/calculator.js"></script>
+  <script src="js/voice-demo.js"></script>
+</body>
+</html>
