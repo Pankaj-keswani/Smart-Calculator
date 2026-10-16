@@ -70,7 +70,6 @@ class FloatingCalculatorService : Service() {
         super.onCreate()
         try {
             windowManager = getSystemService(Context.WINDOW_SERVICE) as? WindowManager
-            startForegroundServiceNotification()
             createFloatingView()
         } catch (e: Throwable) {
             e.printStackTrace()
@@ -89,46 +88,6 @@ class FloatingCalculatorService : Service() {
             }
         } catch (_: Throwable) {}
         return START_NOT_STICKY
-    }
-
-    private fun startForegroundServiceNotification() {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val channel = NotificationChannel(
-                    CHANNEL_ID,
-                    "SmartCalc Floating Overlay",
-                    NotificationManager.IMPORTANCE_LOW
-                ).apply {
-                    description = "Shows floating calculator bubble over apps"
-                    setShowBadge(false)
-                }
-                val nm = getSystemService(NotificationManager::class.java)
-                nm?.createNotificationChannel(channel)
-            }
-
-            val iconRes = applicationInfo.icon.let { if (it != 0) it else android.R.drawable.ic_dialog_info }
-
-            val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("SmartCalc Floating Mode Active")
-                .setContentText("Tap bubble on screen to calculate over any app")
-                .setSmallIcon(iconRes)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setOngoing(true)
-                .build()
-
-            if (Build.VERSION.SDK_INT >= 34) { // Android 14+
-                ServiceCompat.startForeground(
-                    this,
-                    NOTIFICATION_ID,
-                    notification,
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
-                )
-            } else {
-                startForeground(NOTIFICATION_ID, notification)
-            }
-        } catch (e: Throwable) {
-            e.printStackTrace()
-        }
     }
 
     private fun dpToPx(dp: Float): Int {

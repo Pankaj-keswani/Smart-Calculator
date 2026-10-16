@@ -46,15 +46,7 @@ class FloatingOverlayModule(private val reactContext: ReactApplicationContext) :
                 return
             }
             val intent = Intent(reactContext, FloatingCalculatorService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                try {
-                    reactContext.startForegroundService(intent)
-                } catch (_: Exception) {
-                    reactContext.startService(intent)
-                }
-            } else {
-                reactContext.startService(intent)
-            }
+            reactContext.startService(intent)
             promise.resolve(true)
         } catch (e: Exception) {
             e.printStackTrace()

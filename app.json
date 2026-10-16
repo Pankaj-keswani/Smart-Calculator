@@ -2,7 +2,7 @@
   "expo": {
     "name": "VoiceCalc AI: Smart Calculator",
     "slug": "voicecalc-ai",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "icon": "./assets/icon.png",
     "sdkVersion": "57.0.0",
     "orientation": "portrait",
