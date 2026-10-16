@@ -30,7 +30,7 @@ export interface LocalizedStrings {
 
 export const TRANSLATIONS: Record<SupportedLanguage, LocalizedStrings> = {
   'en-US': {
-    appName: 'SmartCalc AI',
+    appName: 'VoiceCalc AI',
     voiceMode: 'Voice',
     calculatorMode: 'Keypad',
     micStateLabel: {
@@ -69,7 +69,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, LocalizedStrings> = {
     ],
   },
   'en-IN': {
-    appName: 'SmartCalc AI',
+    appName: 'VoiceCalc AI',
     voiceMode: 'Voice',
     calculatorMode: 'Keypad',
     micStateLabel: {
@@ -107,7 +107,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, LocalizedStrings> = {
     ],
   },
   'hi-IN': {
-    appName: 'SmartCalc AI',
+    appName: 'VoiceCalc AI',
     voiceMode: 'वॉइस (Voice)',
     calculatorMode: 'कीपैड (Keypad)',
     micStateLabel: {
@@ -143,7 +143,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, LocalizedStrings> = {
     ],
   },
   'es-ES': {
-    appName: 'SmartCalc AI',
+    appName: 'VoiceCalc AI',
     voiceMode: 'Voz',
     calculatorMode: 'Teclado',
     micStateLabel: {
@@ -180,7 +180,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, LocalizedStrings> = {
     ],
   },
   'fr-FR': {
-    appName: 'SmartCalc AI',
+    appName: 'VoiceCalc AI',
     voiceMode: 'Voix',
     calculatorMode: 'Clavier',
     micStateLabel: {
@@ -216,7 +216,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, LocalizedStrings> = {
     ],
   },
   'de-DE': {
-    appName: 'SmartCalc AI',
+    appName: 'VoiceCalc AI',
     voiceMode: 'Sprache',
     calculatorMode: 'Tastatur',
     micStateLabel: {

@@ -6,7 +6,7 @@
 
 import { ConversationContext } from '../models/types';
 
-export const AI_SYSTEM_PROMPT = `You are the Mathematical Intent Parser for SmartCalc AI, a voice-first intelligent calculator.
+export const AI_SYSTEM_PROMPT = `You are the Mathematical Intent Parser for VoiceCalc AI, a voice-first intelligent calculator.
 You are NOT the final calculator. Your sole responsibility is to understand natural-language voice commands in any language (including English, Indian English, Hinglish, Hindi, Spanish, French, German) and output a single, strictly valid JSON object representing the user's mathematical intent.
 A deterministic local JEV calculation engine will validate and compute the actual mathematical result from your structured output.
 

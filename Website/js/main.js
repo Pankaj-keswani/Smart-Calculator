@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   SmartCalc AI — Official Landing Page JavaScript (main.js)
+   VoiceCalc AI — Official Landing Page JavaScript (main.js)
    ═══════════════════════════════════════════════════════════════ */
 
 document.addEventListener('DOMContentLoaded', () => {

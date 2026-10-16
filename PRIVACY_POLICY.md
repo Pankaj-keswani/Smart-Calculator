@@ -1,23 +1,23 @@
-# Privacy Policy for SmartCalc AI
+# Privacy Policy for VoiceCalc AI
 
 **Last Updated:** October 14, 2026  
 **Effective Date:** October 14, 2026  
-**Developer:** SmartCalc AI Team  
+**Developer:** VoiceCalc AI Team  
 **Contact:** [support@smartcalc.ai](mailto:support@smartcalc.ai)  
 
 ---
 
 ## 1. Overview & Core Privacy Promise
 
-**SmartCalc AI** is engineered from the ground up with a strict **privacy-by-design** architecture. We believe that your daily numbers, personal finances, budget calculations, and spoken voice commands belong solely to you.
+**VoiceCalc AI** is engineered from the ground up with a strict **privacy-by-design** architecture. We believe that your daily numbers, personal finances, budget calculations, and spoken voice commands belong solely to you.
 
-> **Zero Data Collection Guarantee:** SmartCalc AI does not collect, log, track, sell, or transmit any user data, calculation records, or audio recordings to external cloud servers. All computations run 100% locally on your device.
+> **Zero Data Collection Guarantee:** VoiceCalc AI does not collect, log, track, sell, or transmit any user data, calculation records, or audio recordings to external cloud servers. All computations run 100% locally on your device.
 
 ---
 
 ## 2. Device Permissions & Why They Are Needed
 
-To provide hands-free voice calculation and multi-tasking overlay features, SmartCalc AI requests the following explicit Android device permissions:
+To provide hands-free voice calculation and multi-tasking overlay features, VoiceCalc AI requests the following explicit Android device permissions:
 
 ### A. Microphone (`android.permission.RECORD_AUDIO`)
 - **Purpose:** Used exclusively when you activate voice calculation to convert spoken words into mathematical operations in real time.
@@ -45,7 +45,7 @@ All calculations, custom variables, formulas, unit conversions, and history entr
 
 ## 4. Third-Party Services & Tracking
 
-SmartCalc AI contains:
+VoiceCalc AI contains:
 - **NO** third-party analytics SDKs (no Firebase Analytics, Google Analytics, Mixpanel, etc.)
 - **NO** advertising networks or ad trackers
 - **NO** behavioral telemetry trackers
@@ -57,7 +57,7 @@ We do not track your location, your device identifiers, or your usage habits.
 
 ## 5. Children's Privacy (COPPA Compliance)
 
-SmartCalc AI is completely safe for all audiences and does not collect any personal information from children under 13 years of age (or any age).
+VoiceCalc AI is completely safe for all audiences and does not collect any personal information from children under 13 years of age (or any age).
 
 ---
 
@@ -69,10 +69,10 @@ Because all processing occurs strictly within the local Android OS sandbox witho
 
 ## 7. Contact & Inquiries
 
-If you have any questions, suggestions, or concerns regarding this Privacy Policy or SmartCalc AI, please contact the developer team at:
+If you have any questions, suggestions, or concerns regarding this Privacy Policy or VoiceCalc AI, please contact the developer team at:
 
 - **Email:** [support@smartcalc.ai](mailto:support@smartcalc.ai)
-- **Repository:** [SmartCalc AI on GitHub](https://github.com/)
+- **Repository:** [VoiceCalc AI on GitHub](https://github.com/)
 
 ---
-*© 2026 SmartCalc AI. Built with local on-device intelligence. All rights reserved.*
+*© 2026 VoiceCalc AI. Built with local on-device intelligence. All rights reserved.*

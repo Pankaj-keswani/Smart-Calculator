@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   SmartCalc AI — Interactive Voice Math AI Playground
+   VoiceCalc AI — Interactive Voice Math AI Playground
    ═══════════════════════════════════════════════════════════════ */
 
 (function () {

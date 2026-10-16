@@ -1,12 +1,12 @@
-# SmartCalc AI — Voice-First Intelligent Calculator (Android & iOS)
+# VoiceCalc AI — Voice-First Intelligent Calculator (Android & iOS)
 
-**SmartCalc AI** is a production-ready, cross-platform (**Android & iOS**) voice calculator built with **React Native (Expo) + TypeScript**. It allows users to perform arithmetic, everyday financial math (GST, discounts, tips, bill splitting), scientific operations, unit conversions, and contextual follow-up calculations through natural spoken commands in English, Indian English, and Hinglish.
+**VoiceCalc AI** is a production-ready, cross-platform (**Android & iOS**) voice calculator built with **React Native (Expo) + TypeScript**. It allows users to perform arithmetic, everyday financial math (GST, discounts, tips, bill splitting), scientific operations, unit conversions, and contextual follow-up calculations through natural spoken commands in English, Indian English, and Hinglish.
 
 ---
 
 ## 1. Architecture & Core Pipeline
 
-SmartCalc AI strictly separates **Natural-Language Intent Understanding** from **Deterministic Mathematical Calculation** so the AI never hallucinates math results or executes unsafe code:
+VoiceCalc AI strictly separates **Natural-Language Intent Understanding** from **Deterministic Mathematical Calculation** so the AI never hallucinates math results or executes unsafe code:
 
 ```text
 VOICE INPUT (Microphone)
@@ -114,7 +114,7 @@ EXPO_PUBLIC_AI_MODEL=gpt-4o-mini
 
 > **In-App Configuration**: You can also configure or switch `AI_API_KEY`, `AI_BASE_URL`, `AI_MODEL`, and the AI Provider (`OpenAI`, `Gemini`, `Groq`, `Claude`, `Custom`, or `Local / Offline`) directly inside the app by tapping the **⚙ Settings** icon in the top-right corner!
 >
-> **Works Out-of-the-Box Without an API Key**: If `AI_API_KEY` is left blank, SmartCalc AI automatically uses its built-in deterministic Natural Language & Hinglish parser (`NLFallbackParser`) so you can test the entire workflow immediately offline or before adding a cloud key.
+> **Works Out-of-the-Box Without an API Key**: If `AI_API_KEY` is left blank, VoiceCalc AI automatically uses its built-in deterministic Natural Language & Hinglish parser (`NLFallbackParser`) so you can test the entire workflow immediately offline or before adding a cloud key.
 
 ---
 

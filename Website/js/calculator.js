@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   SmartCalc AI — Live In-Browser Calculator Engine
+   VoiceCalc AI — Live In-Browser Calculator Engine
    ═══════════════════════════════════════════════════════════════ */
 
 (function () {

@@ -524,7 +524,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     Home Screen Widget & Quick Tile
                   </Text>
                   <Text style={[styles.subLabel, { color: theme.textSecondary, lineHeight: 17 }]}>
-                    Add the SmartCalc widget to your phone's home screen for on-screen arithmetic, or use the notification Quick Tile for instant voice calculations.
+                    Add the VoiceCalc widget to your phone's home screen for on-screen arithmetic, or use the notification Quick Tile for instant voice calculations.
                   </Text>
                 </View>
               </View>
@@ -601,7 +601,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 { color: theme.textMuted, marginTop: 14 },
               ]}
             >
-              SmartCalc AI • v1.0.0 (Local Build)
+              VoiceCalc AI • v1.0.0 (Local Build)
             </Text>
           </View>
         </ScrollView>
@@ -657,7 +657,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 ]}
               >
                 <Text style={[styles.fieldLabel, { color: theme.textPrimary, fontSize: 16 }]}>
-                  🔒 SmartCalc AI Privacy Policy
+                  🔒 VoiceCalc AI Privacy Policy
                 </Text>
                 <Text
                   style={[
@@ -665,7 +665,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     { color: theme.textSecondary, marginTop: 12, lineHeight: 22, fontSize: 14 },
                   ]}
                 >
-                  {`SmartCalc AI is designed with an offline-first, zero-knowledge architecture. Your privacy and mathematical data are strictly protected at all times.\n\n1. Zero Remote Tracking & Telemetry\nSmartCalc AI does not collect, record, transmit, or monetize your personal information, voice recordings, or mathematical calculations.\n\n2. 100% On-Device Offline Engine\nAll numerical calculations, voice recognition, natural language query parsing, and haptic sound packs are executed entirely offline on your physical device. No internet connection is ever required.\n\n3. Sandboxed Storage\nYour calculation history and customized preferences remain strictly inside your phone's encrypted sandboxed storage and are never uploaded to any remote server or third party.\n\n4. Device Permissions\n• Microphone: Used solely for real-time speech input when you tap the mic. Audio streams are processed locally and discarded immediately after calculation.\n• Display Over Other Apps: Used exclusively for the optional Picture-in-Picture floating mini-calculator so you can calculate while multitasking.`}
+                  {`VoiceCalc AI is designed with an offline-first, zero-knowledge architecture. Your privacy and mathematical data are strictly protected at all times.\n\n1. Zero Remote Tracking & Telemetry\nVoiceCalc AI does not collect, record, transmit, or monetize your personal information, voice recordings, or mathematical calculations.\n\n2. 100% On-Device Offline Engine\nAll numerical calculations, voice recognition, natural language query parsing, and haptic sound packs are executed entirely offline on your physical device. No internet connection is ever required.\n\n3. Sandboxed Storage\nYour calculation history and customized preferences remain strictly inside your phone's encrypted sandboxed storage and are never uploaded to any remote server or third party.\n\n4. Device Permissions\n• Microphone: Used solely for real-time speech input when you tap the mic. Audio streams are processed locally and discarded immediately after calculation.\n• Display Over Other Apps: Used exclusively for the optional Picture-in-Picture floating mini-calculator so you can calculate while multitasking.`}
                 </Text>
               </View>
             </ScrollView>

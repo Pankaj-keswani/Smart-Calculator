@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "SmartCalc AI",
-    "slug": "smartcalc-ai",
+    "name": "VoiceCalc AI: Smart Calculator",
+    "slug": "voicecalc-ai",
     "version": "1.0.0",
     "icon": "./assets/icon.png",
     "sdkVersion": "57.0.0",
@@ -17,8 +17,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.smartcalc.ai",
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "SmartCalc AI uses the microphone to listen to your natural-language voice calculations.",
-        "NSSpeechRecognitionUsageDescription": "SmartCalc AI converts your spoken math questions into text so it can calculate the answer."
+        "NSMicrophoneUsageDescription": "VoiceCalc AI uses the microphone to listen to your natural-language voice calculations.",
+        "NSSpeechRecognitionUsageDescription": "VoiceCalc AI converts your spoken math questions into text so it can calculate the answer."
       }
     },
     "android": {
@@ -35,8 +35,8 @@
       [
         "expo-speech-recognition",
         {
-          "microphonePermission": "SmartCalc AI uses the microphone to listen to your natural-language voice calculations.",
-          "speechRecognitionPermission": "SmartCalc AI converts your spoken math questions into text."
+          "microphonePermission": "VoiceCalc AI uses the microphone to listen to your natural-language voice calculations.",
+          "speechRecognitionPermission": "VoiceCalc AI converts your spoken math questions into text."
         }
       ]
     ]

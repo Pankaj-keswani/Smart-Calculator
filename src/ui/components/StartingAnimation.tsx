@@ -139,7 +139,7 @@ export const StartingAnimation: React.FC<StartingAnimationProps> = ({
           ]}
         >
           <Text style={[styles.title, { color: theme.textPrimary }]}>
-            SmartCalc AI
+            VoiceCalc AI
           </Text>
           <View style={styles.badgeRow}>
             <View
