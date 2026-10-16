@@ -1,4 +1,4 @@
-package com.smartcalc.ai
+package com.voicecalcai.app
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager

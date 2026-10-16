@@ -7,8 +7,8 @@
       android:shortcutLongLabel="@string/shortcut_voice_long">
     <intent
         android:action="android.intent.action.VIEW"
-        android:targetPackage="com.smartcalc.ai"
-        android:targetClass="com.smartcalc.ai.MainActivity"
+        android:targetPackage="com.voicecalcai.app"
+        android:targetClass="com.voicecalcai.app.MainActivity"
         android:data="smartcalc://voice" />
   </shortcut>
   <shortcut
@@ -19,8 +19,8 @@
       android:shortcutLongLabel="@string/shortcut_history_long">
     <intent
         android:action="android.intent.action.VIEW"
-        android:targetPackage="com.smartcalc.ai"
-        android:targetClass="com.smartcalc.ai.MainActivity"
+        android:targetPackage="com.voicecalcai.app"
+        android:targetClass="com.voicecalcai.app.MainActivity"
         android:data="smartcalc://history" />
   </shortcut>
 </shortcuts>

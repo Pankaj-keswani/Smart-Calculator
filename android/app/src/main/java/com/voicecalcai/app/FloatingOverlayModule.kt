@@ -1,4 +1,4 @@
-package com.smartcalc.ai
+package com.voicecalcai.app
 
 import android.app.Activity
 import android.app.PictureInPictureParams

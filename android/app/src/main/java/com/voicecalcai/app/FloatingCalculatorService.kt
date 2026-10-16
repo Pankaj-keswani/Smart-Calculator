@@ -1,4 +1,4 @@
-package com.smartcalc.ai
+package com.voicecalcai.app
 
 import android.annotation.SuppressLint
 import android.app.Notification

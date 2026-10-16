@@ -1,4 +1,4 @@
-package com.smartcalc.ai
+package com.voicecalcai.app
 
 import android.content.Context
 import android.media.AudioAttributes

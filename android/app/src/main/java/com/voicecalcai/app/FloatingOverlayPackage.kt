@@ -1,4 +1,4 @@
-package com.smartcalc.ai
+package com.voicecalcai.app
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule
