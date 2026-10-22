@@ -80,37 +80,29 @@ export class TextToSpeechService {
       const Speech = require('expo-speech');
       await Speech.stop();
 
-      let targetLang = settings.language || ('en-US' as SupportedLanguage);
-      let targetVoiceId = settings.ttsVoiceIdentifier || undefined;
+      let targetLang: string = settings.language || ('en-US' as SupportedLanguage);
 
       // Auto-detect Hindi / Devanagari text or common Hindi terms
       if (
         /[\u0900-\u097F]/.test(cleanText) ||
         /\b(uttar|hai|kitna|jodo|ghatao|karo|batao)\b/i.test(cleanText)
       ) {
-        targetLang = 'hi-IN';
+        targetLang = /[\u0900-\u097F]/.test(cleanText) ? 'hi-IN' : 'en-IN';
       }
 
-      // Query native voices to ensure Android/iOS switches away from default English engine
+      let targetVoiceId: string | undefined;
       try {
-        if (typeof Speech.getAvailableVoicesAsync === 'function') {
-          const voices = await Speech.getAvailableVoicesAsync();
-          if (Array.isArray(voices) && voices.length > 0) {
-            const prefix = targetLang.split('-')[0].toLowerCase();
-            const foundVoice = voices.find(
-              (v: any) =>
-                v.language?.toLowerCase() === targetLang.toLowerCase() ||
-                v.language?.toLowerCase().startsWith(prefix) ||
-                v.identifier?.toLowerCase().includes(prefix)
-            );
-            if (foundVoice) {
-              targetVoiceId = foundVoice.identifier;
-              targetLang = foundVoice.language;
-            }
-          }
+        const voice = this.pickVoice(
+          await this.getNativeVoicesCached(Speech),
+          targetLang,
+          settings.ttsVoiceIdentifier
+        );
+        if (voice) {
+          targetVoiceId = voice.identifier;
+          targetLang = voice.language || targetLang;
         }
       } catch {
-        // Fall back to targetLang tag
+        // Fall back to the language tag only
       }
 
       this.speaking = true;
@@ -139,6 +131,50 @@ export class TextToSpeechService {
       this.speaking = false;
       callbacks?.onDone?.();
     }
+  }
+
+  private nativeVoicesCache: Array<Record<string, any>> | null = null;
+
+  private async getNativeVoicesCached(Speech: any): Promise<Array<Record<string, any>>> {
+    if (this.nativeVoicesCache && this.nativeVoicesCache.length > 0) {
+      return this.nativeVoicesCache;
+    }
+    if (typeof Speech.getAvailableVoicesAsync !== 'function') return [];
+    const voices = await Speech.getAvailableVoicesAsync();
+    this.nativeVoicesCache = Array.isArray(voices) ? voices : [];
+    return this.nativeVoicesCache;
+  }
+
+  /**
+   * Chooses a voice: the user's chosen voice if it speaks the target language family,
+   * otherwise an exact locale match (en-IN before en-US/en-AU...), preferring
+   * on-device voices over network ones (which may need a download and stay silent).
+   */
+  private pickVoice(
+    voices: Array<Record<string, any>>,
+    targetLang: string,
+    preferredId?: string
+  ): Record<string, any> | null {
+    if (!voices.length) return null;
+    const norm = (l?: string) => (l || '').replace('_', '-').toLowerCase();
+    const target = norm(targetLang);
+    const family = target.split('-')[0];
+
+    if (preferredId) {
+      const chosen = voices.find((v) => v.identifier === preferredId);
+      if (chosen && norm(chosen.language).split('-')[0] === family) return chosen;
+    }
+
+    const exact = voices.filter((v) => norm(v.language) === target);
+    const pool = exact.length
+      ? exact
+      : voices.filter((v) => norm(v.language).split('-')[0] === family);
+    if (!pool.length) return null;
+
+    const score = (v: Record<string, any>) =>
+      (/network/i.test(String(v.identifier)) ? 0 : 2) +
+      (String(v.quality).toLowerCase() === 'enhanced' ? 1 : 0);
+    return [...pool].sort((a, b) => score(b) - score(a))[0];
   }
 
   public async stop(): Promise<void> {

@@ -44,7 +44,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <Text style={styles.icon}>⚠️</Text>
             <Text style={styles.title}>Something went wrong</Text>
             <Text style={styles.message}>
-              SmartCalc AI encountered an unexpected display issue. Your saved data and history remain completely safe.
+              VoiceCalc AI hit an unexpected display issue. Your saved data and history remain completely safe.
             </Text>
             <TouchableOpacity
               style={styles.btn}

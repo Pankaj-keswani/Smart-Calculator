@@ -26,7 +26,9 @@ import {
   CalculationOutput,
   VoiceInteractionState,
 } from '../../models/types';
-import { mathStreamFilter } from '../../ai/MathStreamFilter';
+import { mathStreamFilter } from '../../parser/MathStreamFilter';
+import { groupDigits, groupingForLanguage } from '../../utils/numberFormat';
+import { settingsService } from '../../services/SettingsService';
 import { smartCalcOrchestrator } from '../../services/SmartCalcOrchestrator';
 import { ThemeColors } from '../../theme/theme';
 import {
@@ -54,6 +56,8 @@ interface ManualCalculatorProps {
   reuseVersion?: number;
   voiceState?: VoiceInteractionState;
   transcript?: string;
+  /** Short status line from the voice pipeline ("Didn't catch …", mic problems). */
+  voiceNotice?: string | null;
   historyItems?: CalculationHistoryItem[];
   onSelectHistoryItem?: (item: CalculationHistoryItem) => void;
   onOpenHistory?: () => void;
@@ -86,6 +90,7 @@ export const ManualCalculator: React.FC<ManualCalculatorProps> = ({
   reuseVersion = 0,
   voiceState = 'idle',
   transcript = '',
+  voiceNotice = null,
   historyItems = [],
   onSelectHistoryItem,
   onOpenHistory,
@@ -123,11 +128,20 @@ export const ManualCalculator: React.FC<ManualCalculatorProps> = ({
   const scrollViewWidthRef = useRef<number>(0);
   const [isExpressionOverflowing, setIsExpressionOverflowing] = useState(false);
 
+  // Display-only digit grouping (1,50,000 for Indian languages, 150,000 otherwise)
+  const grouping = groupingForLanguage(settingsService.getSettings().language);
+  const displayExpression = expression
+    ? groupDigits(expression.replace(/\*/g, '×').replace(/\//g, '÷'), grouping)
+    : '0';
+
+  // Shrink long expressions step by step before falling back to sideways scrolling
   const getExpressionFontSize = (len: number): number => {
     if (len <= 7) return 64;
-    if (len <= 11) return 50;
-    if (len <= 15) return 40;
-    return 34;
+    if (len <= 10) return 54;
+    if (len <= 13) return 44;
+    if (len <= 17) return 36;
+    if (len <= 22) return 30;
+    return 26;
   };
 
   useEffect(() => {
@@ -139,7 +153,7 @@ export const ManualCalculator: React.FC<ManualCalculatorProps> = ({
     }
   }, [expression, isExpressionOverflowing]);
 
-  // Pulse animation for the Long Mic / AI ON Button when active
+  // Pulse animation for the Long Mic / ON Button when active
   const micPulseAnim = useRef(new Animated.Value(1)).current;
   useEffect(() => {
     if (voiceState === 'listening') {
@@ -762,7 +776,7 @@ export const ManualCalculator: React.FC<ManualCalculatorProps> = ({
                         { color: theme.textPrimary },
                       ]}
                     >
-                      {item.result}
+                      {groupDigits(item.result, grouping)}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -882,13 +896,13 @@ export const ManualCalculator: React.FC<ManualCalculatorProps> = ({
                 styles.expressionText,
                 {
                   color: theme.textPrimary,
-                  fontSize: getExpressionFontSize(expression.length),
+                  fontSize: getExpressionFontSize(displayExpression.length),
                   textAlign: isExpressionOverflowing ? 'left' : 'right',
                 },
               ]}
               accessibilityLabel={`Current expression: ${expression || '0'}`}
             >
-              {expression ? expression.replace(/\*/g, '×').replace(/\//g, '÷') : '0'}
+              {displayExpression}
             </Text>
           </ScrollView>
 
@@ -917,13 +931,13 @@ export const ManualCalculator: React.FC<ManualCalculatorProps> = ({
                 livePreview ? `Result: ${livePreview}` : undefined
               }
             >
-              {livePreview || ' '}
+              {livePreview ? groupDigits(livePreview, grouping) : ' '}
             </Animated.Text>
           )}
         </View>
       </Animated.View>
 
-      {/* 3. Middle Control Bar: Left Double-Chevron (⌃⌄) + Long AI Mic / ON Button */}
+      {/* 3. Middle Control Bar: Left Double-Chevron (⌃⌄) + Long Mic / ON Button */}
       <Animated.View
         style={[
           styles.middleBarRow,
@@ -956,7 +970,7 @@ export const ManualCalculator: React.FC<ManualCalculatorProps> = ({
           </TouchableOpacity>
         </View>
 
-        {/* Marked Place: Long Mic / AI ON Pill Button spanning across the right 3 columns */}
+        {/* Marked Place: Long Mic / ON Pill Button spanning across the right 3 columns */}
         {onTriggerVoice && (
           <Animated.View
             style={[
@@ -968,8 +982,8 @@ export const ManualCalculator: React.FC<ManualCalculatorProps> = ({
               accessibilityRole="button"
               accessibilityLabel={
                 isListening
-                  ? 'AI Microphone is ON and listening. Tap to turn OFF.'
-                  : 'Turn ON AI Voice Calculator'
+                  ? 'Microphone is on and listening. Tap to turn off.'
+                  : 'Turn on voice input'
               }
               activeOpacity={0.85}
               onPress={() => {
@@ -1030,12 +1044,12 @@ export const ManualCalculator: React.FC<ManualCalculatorProps> = ({
                 {isListening
                   ? transcript
                     ? `"${transcript}"`
-                    : 'AI Listening... Speak Math'
+                    : voiceNotice || 'Listening… say your sum'
                   : isProcessing
-                  ? 'Calculating...'
+                  ? 'Calculating…'
                   : isSpeaking
-                  ? 'Speaking Answer...'
-                  : 'AI Voice Mic'}
+                  ? 'Speaking answer…'
+                  : voiceNotice || 'Tap to speak'}
               </Text>
 
               {/* ON / OFF Pill Badge */}

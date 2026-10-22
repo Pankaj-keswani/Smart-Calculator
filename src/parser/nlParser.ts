@@ -88,7 +88,6 @@ const SMALL_NUMBER_WORDS: Record<string, number> = {
   sattar: 70,
   assi: 80,
   nabbe: 90,
-  sau: 100,
   // Hindi Devanagari words
   'एक': 1,
   'दो': 2,
@@ -100,7 +99,6 @@ const SMALL_NUMBER_WORDS: Record<string, number> = {
   'आठ': 8,
   'नौ': 9,
   'दस': 10,
-  'सौ': 100,
   // Spanish number words
   uno: 1,
   dos: 2,
@@ -136,6 +134,10 @@ const SMALL_NUMBER_WORDS: Record<string, number> = {
 
 const MAGNITUDE_WORDS: Record<string, number> = {
   hundred: 100,
+  sau: 100,
+  'सौ': 100,
+  dozen: 12,
+  dozens: 12,
   thousand: 1_000,
   hazaar: 1_000,
   hazar: 1_000,
@@ -210,7 +212,10 @@ export function replaceSpokenNumbers(input: string): string {
 
   const flushNumber = () => {
     if (inNumberSequence) {
-      result.push(String(currentTotal + currentGroup));
+      const value = currentTotal + currentGroup;
+      result.push(
+        Number.isInteger(value) ? String(value) : String(Number(value.toFixed(6)))
+      );
       currentTotal = 0;
       currentGroup = 0;
       inNumberSequence = false;
@@ -228,10 +233,53 @@ export function replaceSpokenNumbers(input: string): string {
 
     const lower = rawToken.toLowerCase();
 
-    // Avoid treating English auxiliary verb "do" as Hindi "2" unless surrounded by Hindi context
+    // Look ahead / behind to the nearest non-space tokens
+    let nextToken: string | null = null;
+    for (let j = i + 1; j < tokens.length; j++) {
+      const t = tokens[j]?.trim();
+      if (t) {
+        nextToken = t.toLowerCase();
+        break;
+      }
+    }
+    let prevToken: string | null = null;
+    for (let j = result.length - 1; j >= 0; j--) {
+      const t = result[j]?.trim();
+      if (t) {
+        prevToken = t.toLowerCase();
+        break;
+      }
+    }
+
+    // Avoid treating English auxiliary verb "do" as Hindi "2" unless it is in a
+    // numeric position ("do sau", "do plus teen", "5 guna do") or Hindi context.
+    const MATH_NEIGHBOUR =
+      /^(?:\d+(?:\.\d+)?|[+\-*/^x×÷]|plus|minus|times|into|guna|bhag|jodo|jod|ghatao|aur|ka|ko|se|lakh|lac|lakhs|crore|crores|hazar|hazaar|hundred|thousand|sau|percent)$/;
     const isEnglishVerbDo =
       lower === 'do' &&
-      !/kitna|karo|jodo|ghatao|aur/i.test(input);
+      !/kitna|karo|jodo|ghatao|\baur\b/i.test(input) &&
+      !(nextToken !== null && MATH_NEIGHBOUR.test(nextToken)) &&
+      !(prevToken !== null && /^(?:[+\-*/^x×÷]|plus|minus|times|into|guna|bhag|aur)$/.test(prevToken));
+
+    // A digit (or decimal) directly followed by a magnitude word starts a spoken
+    // number: "2 lakh" -> 200000, "1.5 crore" -> 15000000, "3 hundred" -> 300
+    if (
+      /^\d+(?:\.\d+)?$/.test(rawToken) &&
+      nextToken !== null &&
+      Object.prototype.hasOwnProperty.call(MAGNITUDE_WORDS, nextToken)
+    ) {
+      const val = parseFloat(rawToken);
+      if (!inNumberSequence) {
+        inNumberSequence = true;
+        currentGroup = val;
+        continue;
+      }
+      const currentAccum = currentTotal + currentGroup;
+      if (Number.isInteger(val) && canMergeCompoundNumbers(currentAccum, val)) {
+        currentGroup += val;
+        continue;
+      }
+    }
 
     if (!isEnglishVerbDo && Object.prototype.hasOwnProperty.call(SMALL_NUMBER_WORDS, lower)) {
       const val = SMALL_NUMBER_WORDS[lower];

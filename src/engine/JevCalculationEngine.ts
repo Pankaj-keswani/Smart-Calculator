@@ -260,13 +260,23 @@ export class JevCalculationEngine {
    */
   public formatResult(val: number): string {
     const clean = this.sanitizeNumber(val);
+    // Whole numbers up to 15 digits are shown in full (e.g. 121932631113000000 is
+    // too big, but 999999999999999 is fine); beyond that use 10 significant digits.
     if (
-      Math.abs(clean) >= 1e12 ||
-      (Math.abs(clean) > 0 && Math.abs(clean) < 1e-6)
+      Math.abs(clean) >= 1e15 ||
+      (Math.abs(clean) > 0 && Math.abs(clean) < 1e-9)
     ) {
-      return clean.toExponential(6).replace(/\.?0+e/, 'e');
+      return clean
+        .toExponential(9)
+        .replace(/\.?0+e/, 'e')
+        .replace('e+', 'e');
     }
-    return String(Number(clean.toFixed(10)));
+    const fixed = Number(clean.toFixed(10));
+    // Avoid JS's own exponent form for small decimals like 1e-7
+    if (Math.abs(fixed) > 0 && Math.abs(fixed) < 1e-6) {
+      return fixed.toFixed(10).replace(/0+$/, '');
+    }
+    return String(fixed);
   }
 
   /**

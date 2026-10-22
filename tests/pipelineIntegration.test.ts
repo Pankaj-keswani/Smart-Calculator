@@ -6,7 +6,7 @@
  * -> VALIDATION -> SAFE CALCULATION ENGINE -> RESULT -> TEXT TO SPEECH -> HISTORY
  */
 
-import { AIService } from '../src/ai/AIService';
+import { IntentService } from '../src/parser/IntentService';
 import { CalculationService } from '../src/engine/CalculationService';
 import { ConversionService } from '../src/engine/ConversionService';
 import { CurrencyService } from '../src/engine/CurrencyService';
@@ -17,7 +17,7 @@ import { SpeechService } from '../src/services/SpeechService';
 import { TextToSpeechService } from '../src/services/TextToSpeechService';
 
 describe('SmartCalc AI - Full Voice-to-Speech Pipeline Integration Tests', () => {
-  let ai: AIService;
+  let intents: IntentService;
   let calc: CalculationService;
   let conv: ConversionService;
   let curr: CurrencyService;
@@ -28,11 +28,10 @@ describe('SmartCalc AI - Full Voice-to-Speech Pipeline Integration Tests', () =>
   let spokenOutputs: string[];
 
   beforeEach(() => {
-    ai = new AIService();
+    intents = new IntentService();
     calc = new CalculationService();
     conv = new ConversionService();
     curr = new CurrencyService();
-    curr.setAllowLiveNetworkFetch(false);
     speech = new SpeechService();
     tts = new TextToSpeechService();
     history = new HistoryService();
@@ -43,7 +42,7 @@ describe('SmartCalc AI - Full Voice-to-Speech Pipeline Integration Tests', () =>
     });
 
     orchestrator = new SmartCalcOrchestrator({
-      ai,
+      intents,
       calc,
       conv,
       curr,
@@ -57,9 +56,13 @@ describe('SmartCalc AI - Full Voice-to-Speech Pipeline Integration Tests', () =>
     const observedStates: VoiceInteractionState[] = [];
     let finalTranscript = '';
 
+    let stateWhileSessionOpen: VoiceInteractionState | undefined;
     speech.setMockSpeechRecognizer(async (callbacks) => {
       callbacks.onPartialResult?.('Calculate 250');
       callbacks.onFinalResult('Calculate 250 plus 375');
+      // Keep the recognizer session open while the result is processed & spoken
+      await new Promise((r) => setTimeout(r, 30));
+      stateWhileSessionOpen = observedStates[observedStates.length - 1];
     });
 
     await orchestrator.startVoiceSession({
@@ -69,14 +72,17 @@ describe('SmartCalc AI - Full Voice-to-Speech Pipeline Integration Tests', () =>
       },
     });
 
-    // Wait a tick for async finalResult processing
-    await new Promise((r) => setTimeout(r, 20));
-
     expect(finalTranscript).toBe('Calculate 250 plus 375');
     expect(observedStates).toContain('listening');
     expect(observedStates).toContain('processing');
-    // In continuous hands-free voice mode, microphone remains listening after result
-    expect(observedStates[observedStates.length - 1]).toBe('listening');
+    // In hands-free voice mode the answer is spoken (mic paused), then the
+    // microphone resumes listening while the session is still open
+    expect(observedStates).toContain('speaking');
+    // Hands-free mode speaks just the number so the mic is back quickly
+    expect(spokenOutputs).toContain('625');
+    expect(stateWhileSessionOpen).toBe('listening');
+    // Once the recognizer session ends, the UI must not claim the mic is still on
+    expect(observedStates[observedStates.length - 1]).toBe('idle');
 
     const historyItems = history.getItems();
     expect(historyItems.length).toBe(1);

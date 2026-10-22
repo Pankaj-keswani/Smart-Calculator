@@ -173,12 +173,12 @@ export const StartingAnimation: React.FC<StartingAnimationProps> = ({
                   { color: theme.keypadOperatorText },
                 ]}
               >
-                VOICE AI
+                OFFLINE
               </Text>
             </View>
           </View>
           <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-            Local Verified Math • Continuous Voice
+            Works on your phone • No internet needed
           </Text>
         </Animated.View>
 

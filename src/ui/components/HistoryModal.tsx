@@ -15,6 +15,8 @@ import { LocalizedStrings } from '../../localization/i18n';
 import { CalculationHistoryItem } from '../../models/types';
 import { historyService } from '../../services/HistoryService';
 import { ThemeColors } from '../../theme/theme';
+import { groupDigits, groupingForLanguage } from '../../utils/numberFormat';
+import { settingsService } from '../../services/SettingsService';
 import { triggerLightHaptic } from '../../utils/haptics';
 
 interface HistoryModalProps {
@@ -198,7 +200,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                     <Text
                       style={[styles.resultText, { color: theme.textPrimary }]}
                     >
-                      {item.result}
+                      {groupDigits(item.result, groupingForLanguage(settingsService.getSettings().language))}
                     </Text>
                   </View>
                 </TouchableOpacity>

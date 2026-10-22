@@ -1,12 +1,12 @@
 /**
  * SmartCalc End-to-End Pipeline Orchestrator (SmartCalcOrchestrator)
  *
- * Implements the full production pipeline required by Section 31:
- * VOICE INPUT -> SPEECH TO TEXT -> AI INTENT PARSER -> STRUCTURED JSON
+ * Everything runs on the phone:
+ * VOICE INPUT -> ON-DEVICE SPEECH TO TEXT -> TRANSCRIPT NORMALIZER -> RULE-BASED PARSER
  * -> VALIDATION -> SAFE CALCULATION ENGINE -> RESULT -> TEXT TO SPEECH -> HISTORY
  */
 
-import { aiService, AIService, AIServiceError } from '../ai/AIService';
+import { intentService, IntentService, IntentError } from '../parser/IntentService';
 import {
   CalculationService,
   calculationService,
@@ -19,9 +19,11 @@ import { CurrencyService, currencyService } from '../engine/CurrencyService';
 import {
   CalculationOutput,
   ConversationContext,
+  ErrorCode,
   StructuredAIIntent,
   VoiceInteractionState,
 } from '../models/types';
+import { normalizeTranscript } from '../voice/transcriptNormalizer';
 import { HistoryService, historyService } from './HistoryService';
 import { SpeechService, speechService } from './SpeechService';
 import {
@@ -30,7 +32,7 @@ import {
 } from './TextToSpeechService';
 import { settingsService } from './SettingsService';
 import { formatSpokenResult, getLocalizedErrorMessage } from '../localization/i18n';
-import { mathStreamFilter } from '../ai/MathStreamFilter';
+import { mathStreamFilter } from '../parser/MathStreamFilter';
 import { updateWidgetDisplay } from '../utils/floatingOverlay';
 import { playConfirmationChime } from '../utils/sound';
 
@@ -39,7 +41,64 @@ export interface OrchestratorStateCallbacks {
   onTranscriptUpdate?: (transcript: string, isFinal: boolean) => void;
   onResult?: (output: CalculationOutput) => void;
   onContextUpdate?: (context: ConversationContext) => void;
+  /** Short, non-error status line for the mic UI ("Didn't catch that…", mic problems). */
+  onNotice?: (message: string | null) => void;
 }
+
+interface IntentResolution {
+  intent: StructuredAIIntent;
+  /** The candidate text that produced the intent. */
+  command: string;
+  /** Output already computed while validating the candidate (pure engines only). */
+  output?: CalculationOutput;
+}
+
+/**
+ * Engine errors that mean "this text was not understood" (try another candidate),
+ * as opposed to real math outcomes such as division by zero.
+ */
+const NOT_UNDERSTOOD_ERRORS = new Set<ErrorCode>([
+  'UNSUPPORTED_OPERATION',
+  'INVALID_EXPRESSION',
+  'INVALID_NUMBER',
+  'UNSUPPORTED_JEV_FUNCTION',
+  'JEV_ERROR',
+  'VALIDATION_MISMATCH',
+  'UNSUPPORTED_UNIT',
+  'MALFORMED_AI_RESPONSE',
+]);
+
+/** Filler words allowed around a lone number ("okay 5", "now 500 rupees"). */
+const NUMBER_FILLER = new Set([
+  'um', 'uh', 'hmm', 'ok', 'okay', 'so', 'now', 'then', 'and', 'the', 'a', 'number',
+  'is', 'it', 'its', "it's", 'just', 'start', 'with', 'from', 'value', 'new', 'next',
+  'please', 'again', 'set', 'yes', 'hey', 'hi', 'hello', 'calculate', 'what', 'whats',
+  "what's", 'equals', 'equal', 'to', 'hai', 'bhai', 'arre', 'acha', 'haan', 'chalo',
+]);
+
+/** True when a phrase is only a number plus filler — not "7 frogs and the moon". */
+function isJustANumber(text: string): boolean {
+  const words = normalizeTranscript(text)
+    .toLowerCase()
+    .replace(/[-+]?\d+(?:\.\d+)?/g, ' ')
+    .split(/[^a-z'\u0900-\u097f]+/)
+    .filter(Boolean);
+  return words.every((w) => NUMBER_FILLER.has(w));
+}
+
+/** Window in which an identical spoken calculation is treated as a duplicate. */
+const DUPLICATE_WINDOW_MS = 4000;
+/** Partial transcripts are only evaluated if no final result arrives within this time. */
+const PARTIAL_FALLBACK_MS = 2500;
+/** "25 plus" … (pause) … "30": how long a dangling phrase waits for its continuation. */
+const PENDING_PREFIX_MS = 12000;
+/**
+ * A phrase that ends on an operator is incomplete ("25 plus", "100 divided by",
+ * "square root of"). Percent at the end is complete ("1000 + 18%"), and Hinglish
+ * verbs at the end ("100 aur 200 jodo") finish a command.
+ */
+const DANGLING_END =
+  /(?:[+\-*/^×÷(]|\b(?:plus|minus|times|into|multiply|multiplied\s+by|divide|divided\s+by|by|over|upon|of|and|aur|ka|pe|par|guna|bhag|power|raised\s+to|to\s+the\s+power(?:\s+of)?))\s*$/i;
 
 export class SmartCalcOrchestrator {
   private context: ConversationContext = {
@@ -51,7 +110,7 @@ export class SmartCalcOrchestrator {
     recentTurns: [],
   };
 
-  private ai: AIService;
+  private intents: IntentService;
   private calc: CalculationService;
   private conv: ConversionService;
   private curr: CurrencyService;
@@ -60,9 +119,14 @@ export class SmartCalcOrchestrator {
   private history: HistoryService;
   private partialEvalTimer: ReturnType<typeof setTimeout> | null = null;
   private lastProcessedTranscript = '';
+  private lastEvaluatedAt = 0;
+  /** Incomplete phrase waiting for the next one ("25 plus" + "30"). */
+  private pendingPrefix: { text: string; at: number } | null = null;
+  /** Raw text of the last partial-fallback evaluation (its late final is ignored). */
+  private lastPartialEvaluated: { text: string; at: number } | null = null;
 
   constructor(deps?: {
-    ai?: AIService;
+    intents?: IntentService;
     calc?: CalculationService;
     conv?: ConversionService;
     curr?: CurrencyService;
@@ -70,7 +134,7 @@ export class SmartCalcOrchestrator {
     tts?: TextToSpeechService;
     history?: HistoryService;
   }) {
-    this.ai = deps?.ai || aiService;
+    this.intents = deps?.intents || intentService;
     this.calc = deps?.calc || calculationService;
     this.conv = deps?.conv || conversionService;
     this.curr = deps?.curr || currencyService;
@@ -177,7 +241,12 @@ export class SmartCalcOrchestrator {
   public async processCommand(
     spokenOrTypedCommand: string,
     callbacks?: OrchestratorStateCallbacks,
-    options?: { isVoiceStream?: boolean; originalSpoken?: string }
+    options?: {
+      isVoiceStream?: boolean;
+      originalSpoken?: string;
+      /** Other speech-recognizer hypotheses for the same utterance (best first). */
+      alternatives?: string[];
+    }
   ): Promise<CalculationOutput> {
     const trimmed = spokenOrTypedCommand.trim();
     const displayCommand = options?.originalSpoken?.trim() || trimmed;
@@ -189,14 +258,10 @@ export class SmartCalcOrchestrator {
     const effectiveLang = (isHindiText && (userLang === 'en-US' || userLang === 'en-IN')) ? 'hi-IN' : userLang;
 
     try {
-      const rawIntent = await this.ai.interpretCommand(
-        trimmed,
-        this.context,
-        effectiveLang
-      );
-
-      // Section 8: Local Context Resolver — inject previousResult strictly from local application state
-      const intent = this.resolveContextFromLocalState(rawIntent);
+      // On-device interpretation over every recognizer hypothesis.
+      // Context (previousResult) is injected from local state.
+      const resolution = await this.resolveIntent(trimmed, options);
+      const intent = resolution.intent;
 
       // Handle context reset
       if (intent.intent === 'context_reset') {
@@ -212,8 +277,7 @@ export class SmartCalcOrchestrator {
         };
         callbacks?.onResult?.(output);
         if (options?.isVoiceStream) {
-          playConfirmationChime();
-          callbacks?.onVoiceStateChange?.('listening');
+          await this.announceInVoiceStream(output.spokenResponse, callbacks);
         } else {
           await this.speakOutput(output.spokenResponse, callbacks);
         }
@@ -325,9 +389,7 @@ export class SmartCalcOrchestrator {
         callbacks?.onResult?.(controlOutput);
         callbacks?.onContextUpdate?.(this.getContext());
         if (options?.isVoiceStream) {
-          playConfirmationChime();
-          this.speech.restartSession();
-          callbacks?.onVoiceStateChange?.('listening');
+          await this.announceInVoiceStream(controlOutput.spokenResponse, callbacks);
         } else {
           await this.speakOutput(controlOutput.spokenResponse, callbacks);
         }
@@ -352,6 +414,8 @@ export class SmartCalcOrchestrator {
           fromUnit: intent.from_unit ?? undefined,
         };
         callbacks?.onContextUpdate?.(this.getContext());
+      } else if (resolution.output) {
+        output = resolution.output;
       } else if (
         intent.intent === 'conversion' ||
         intent.intent === 'unit_conversion'
@@ -364,6 +428,24 @@ export class SmartCalcOrchestrator {
         output = await this.curr.executeIntent(intent);
       } else {
         output = this.calc.executeIntent(intent, displayCommand);
+      }
+
+      // Hands-free mode: an utterance we could not understand is not an "Error" on the
+      // calculator — show a gentle hint, keep the previous result, keep listening.
+      if (
+        options?.isVoiceStream &&
+        !output.success &&
+        !output.requiresClarification &&
+        (intent.intent === 'unsupported' ||
+          (output.errorCode !== undefined && NOT_UNDERSTOOD_ERRORS.has(output.errorCode)))
+      ) {
+        this.notifyNotUnderstood(displayCommand, callbacks);
+        return {
+          ...output,
+          formattedResult: this.context.lastFormattedResult || '0',
+          displayExpression: this.context.lastExpression || 'Ready',
+          spokenResponse: '',
+        };
       }
 
       // Update context and history on successful deterministic calculation
@@ -394,7 +476,7 @@ export class SmartCalcOrchestrator {
         });
       }
 
-      // Section 3: NEVER allow AI response_text to override deterministic mathematical results.
+      // Parser response_text never overrides deterministic mathematical results.
       // Only use response_text for unsupported/clarification intents.
       if (
         intent.intent === 'unsupported' &&
@@ -416,24 +498,29 @@ export class SmartCalcOrchestrator {
         );
       }
 
+      callbacks?.onNotice?.(null);
       callbacks?.onResult?.(output);
-      if (output.formattedResult) {
+      if (output.success && output.formattedResult) {
         updateWidgetDisplay(output.formattedResult);
       }
       if (options?.isVoiceStream) {
-        // Continuous hands-free voice mode: play pleasant confirmation chime and reset recognizer buffer for next phrase
-        playConfirmationChime();
-        this.speech.restartSession();
-        callbacks?.onVoiceStateChange?.('listening');
+        // Hands-free mode: chime, then speak just the number ("6") with the mic paused,
+        // so the recognizer never hears the app's own voice and is back quickly for
+        // the next "plus 2".
+        const short =
+          output.success && !output.requiresClarification
+            ? output.formattedResult
+            : output.spokenResponse;
+        await this.announceInVoiceStream(short, callbacks);
       } else {
         await this.speakOutput(output.spokenResponse, callbacks);
       }
       return output;
     } catch (err) {
       const errorCode =
-        err instanceof AIServiceError ? err.code : 'INVALID_EXPRESSION';
+        err instanceof IntentError ? err.code : 'INVALID_EXPRESSION';
       const friendlyMessage =
-        err instanceof AIServiceError
+        err instanceof IntentError
           ? err.friendlyMessage
           : getLocalizedErrorMessage(effectiveLang);
 
@@ -449,7 +536,7 @@ export class SmartCalcOrchestrator {
       if (options?.isVoiceStream) {
         // In continuous hands-free voice stream, never flash "Error" on the calculator display
         // for transient noise or mid-sentence pauses; keep listening smoothly!
-        callbacks?.onVoiceStateChange?.('listening');
+        this.notifyNotUnderstood(displayCommand, callbacks);
         return {
           success: false,
           formattedResult: this.context.lastFormattedResult || '0',
@@ -474,56 +561,340 @@ export class SmartCalcOrchestrator {
   }
 
   /**
-   * Evaluates a spoken math transcript if it contains valid mathematical tokens
-   * and hasn't already been evaluated in the current speech segment.
+   * Builds the ordered, de-duplicated list of texts to try for one utterance:
+   * for every recognizer hypothesis, the filtered math text and the normalized
+   * full sentence (which keeps words like "squared", "half of", "split").
    */
-  private async evaluateSpokenSegment(
-    rawTranscript: string,
-    callbacks?: OrchestratorStateCallbacks
-  ): Promise<void> {
-    const normalizedKey = rawTranscript.trim().toLowerCase();
-    if (!normalizedKey || normalizedKey === this.lastProcessedTranscript) {
-      return;
+  private buildCandidates(primary: string, alternatives?: string[]): string[] {
+    const out: string[] = [];
+    const seen = new Set<string>();
+    const push = (t?: string | null) => {
+      const v = t?.replace(/\s+/g, ' ').trim();
+      if (!v) return;
+      const key = v.toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push(v);
+    };
+
+    const hypotheses = [primary, ...(alternatives || [])].filter(
+      (h, i, arr) => h && h.trim() && arr.findIndex((x) => x.trim().toLowerCase() === h.trim().toLowerCase()) === i
+    );
+
+    for (const hyp of hypotheses) {
+      const filtered = mathStreamFilter.filter(hyp, this.context);
+      const normalized = normalizeTranscript(hyp);
+      if (filtered.isPureNoise && !/\d/.test(normalized)) {
+        continue;
+      }
+      if (this.context.pendingClarification) {
+        // Answers to a clarification ("by 2") must keep their wording
+        push(normalized);
+        push(filtered.cleanMathText);
+      } else if (filtered.needsNaturalLanguageParser) {
+        push(filtered.cleanMathText);
+        push(normalized);
+        push(filtered.tokenMathText);
+      } else {
+        push(filtered.cleanMathText);
+        push(normalized);
+      }
     }
-
-    const filterResult = mathStreamFilter.filter(rawTranscript, this.context);
-
-    // If speech is 100% conversational noise with zero math (e.g. "hello", "arre suno"),
-    // ignore it silently, do not show error, and keep listening!
-    if (filterResult.isPureNoise || !filterResult.cleanMathText) {
-      return;
-    }
-
-    const clean = filterResult.cleanMathText.trim();
-
-    // Avoid evaluating an incomplete trailing operator or preposition while user is still speaking
-    if (
-      /(?:[+\-*/^×÷]|plus|minus|times|into|divide|divided|by|upon|over|percent|percentage|of|ka|pe|par)\s*$/i.test(
-        clean
-      )
-    ) {
-      return;
-    }
-
-    // Check for open unmatched parenthesis
-    const openParenCount = (clean.match(/\(/g) || []).length;
-    const closeParenCount = (clean.match(/\)/g) || []).length;
-    if (openParenCount > closeParenCount) {
-      return;
-    }
-
-    this.lastProcessedTranscript = normalizedKey;
-
-    await this.processCommand(filterResult.cleanMathText, callbacks, {
-      isVoiceStream: true,
-      originalSpoken: rawTranscript,
-    });
+    if (out.length === 0) push(primary);
+    return out;
   }
 
   /**
-   * Starts microphone listening in continuous hands-free mode.
-   * Never auto-kills the microphone on a timer; stays ON continuously
-   * until the user manually taps the Mic ON/OFF button.
+   * Runs one candidate through the on-device parser and (for pure engines) the
+   * calculator, so we can tell "understood" from "not understood" before committing.
+   */
+  private tryLocalCandidate(
+    candidate: string,
+    displayCommand: string
+  ): (IntentResolution & { status: 'ok' | 'clarification' | 'failed' }) | null {
+    let intent: StructuredAIIntent;
+    try {
+      intent = this.resolveContextFromLocalState(
+        this.intents.interpret(candidate, this.context)
+      );
+    } catch {
+      return null;
+    }
+
+    if (intent.intent === 'unsupported') {
+      return { intent, command: candidate, status: 'failed' };
+    }
+    if (intent.requires_clarification || intent.intent === 'clarification') {
+      return { intent, command: candidate, status: 'clarification' };
+    }
+    if (
+      intent.intent === 'voice_control' ||
+      intent.intent === 'context_reset' ||
+      intent.intent === 'currency' ||
+      intent.intent === 'currency_conversion'
+    ) {
+      return { intent, command: candidate, status: 'ok' };
+    }
+
+    let output: CalculationOutput;
+    try {
+      output =
+        intent.intent === 'conversion' || intent.intent === 'unit_conversion'
+          ? this.conv.executeIntent(intent)
+          : this.calc.executeIntent(intent, displayCommand);
+    } catch {
+      return { intent, command: candidate, status: 'failed' };
+    }
+
+    const understood =
+      output.success ||
+      (output.errorCode !== undefined && !NOT_UNDERSTOOD_ERRORS.has(output.errorCode));
+    return { intent, command: candidate, output, status: understood ? 'ok' : 'failed' };
+  }
+
+  /**
+   * On-device intent resolution: every candidate through the deterministic parser
+   * (instant, offline); if none is understood, the best clarification / failure
+   * is used for a helpful message.
+   */
+  private async resolveIntent(
+    trimmed: string,
+    options?: { originalSpoken?: string; alternatives?: string[] }
+  ): Promise<IntentResolution> {
+    const displayCommand = options?.originalSpoken?.trim() || trimmed;
+    const candidates = this.buildCandidates(trimmed, options?.alternatives);
+
+    let firstClarification: IntentResolution | null = null;
+    let firstFailure: IntentResolution | null = null;
+    for (const candidate of candidates) {
+      const attempt = this.tryLocalCandidate(candidate, displayCommand);
+      if (!attempt) continue;
+      if (attempt.status === 'ok') return attempt;
+      if (attempt.status === 'clarification' && !firstClarification) firstClarification = attempt;
+      if (attempt.status === 'failed' && !firstFailure) firstFailure = attempt;
+    }
+
+    // Safety net: a candidate that is already a pure math expression
+    // ("sqrt(16) + 4", "( 100 * 3 / 4 ) + 5") goes straight to the engine.
+    for (const candidate of candidates) {
+      const bare = candidate.replace(/\b(?:sqrt|cbrt|sin|cos|tan|log|ln|abs)\b/gi, '');
+      if (!/\d/.test(candidate) || !/^[\d\s.+\-*/^%()]+$/.test(bare) || !/[+\-*/^%(]/.test(bare)) {
+        continue;
+      }
+      const intent: StructuredAIIntent = {
+        intent: 'calculate',
+        operation: 'expression',
+        expression: candidate,
+        requires_clarification: false,
+      };
+      try {
+        const output = this.calc.executeIntent(intent, displayCommand);
+        if (output.success) return { intent, command: candidate, output };
+      } catch {
+        // try next
+      }
+    }
+
+    if (firstClarification) return firstClarification;
+    if (firstFailure) return firstFailure;
+    return {
+      intent: this.resolveContextFromLocalState(
+        this.intents.interpret(trimmed, this.context)
+      ),
+      command: trimmed,
+    };
+  }
+
+  private notifyNotUnderstood(
+    spoken: string,
+    callbacks?: OrchestratorStateCallbacks
+  ): void {
+    const shown = spoken.length > 40 ? `${spoken.slice(0, 40)}…` : spoken;
+    callbacks?.onTranscriptUpdate?.('', false);
+    callbacks?.onNotice?.(`Didn't catch "${shown}" — try again`);
+    if (this.speech.isListening()) {
+      callbacks?.onVoiceStateChange?.('listening');
+    } else {
+      callbacks?.onVoiceStateChange?.('idle');
+    }
+  }
+
+  /** Sets a spoken bare number as the current value (no history entry, no speech). */
+  private setRunningValue(
+    value: number,
+    spoken: string,
+    callbacks?: OrchestratorStateCallbacks
+  ): void {
+    if (!Number.isFinite(value)) return;
+    const formatted = this.calc.formatNumber(value);
+    this.context.lastResult = value;
+    this.context.lastFormattedResult = formatted;
+    this.context.lastExpression = formatted;
+    this.context.lastUnit = null;
+    this.context.pendingClarification = null;
+    callbacks?.onNotice?.(null);
+    callbacks?.onTranscriptUpdate?.(spoken, true);
+    callbacks?.onResult?.({
+      success: true,
+      resultNumber: value,
+      formattedResult: formatted,
+      displayExpression: formatted,
+      spokenResponse: '',
+    });
+    callbacks?.onContextUpdate?.(this.getContext());
+    updateWidgetDisplay(formatted);
+    callbacks?.onVoiceStateChange?.(this.speech.isListening() ? 'listening' : 'idle');
+  }
+
+  /**
+   * Hands-free feedback: chime + haptic, then (if TTS is on) speak the answer while
+   * the microphone is paused, then resume listening.
+   */
+  private async announceInVoiceStream(
+    text: string,
+    callbacks?: OrchestratorStateCallbacks
+  ): Promise<void> {
+    playConfirmationChime();
+    const settings = settingsService.getSettings();
+    if (settings.ttsEnabled && text && text.trim() && this.speech.isListening()) {
+      await this.speech.suspend();
+      await new Promise<void>((resolve) => {
+        // Safety net: some devices never fire onDone (no TTS voice installed, audio
+        // focus lost). Never leave the microphone paused because of that.
+        const safety = setTimeout(resolve, Math.min(8000, 2500 + text.length * 90));
+        const finish = () => {
+          clearTimeout(safety);
+          resolve();
+        };
+        void this.tts.speak(text, {
+          onStart: () => callbacks?.onVoiceStateChange?.('speaking'),
+          onDone: finish,
+          onError: finish,
+        });
+      });
+      const resumed = await this.speech.resume();
+      callbacks?.onVoiceStateChange?.(
+        resumed && this.speech.isListening() ? 'listening' : 'idle'
+      );
+      return;
+    }
+    callbacks?.onVoiceStateChange?.(this.speech.isListening() ? 'listening' : 'idle');
+  }
+
+  /**
+   * Evaluates one recognized utterance (with all recognizer hypotheses).
+   */
+  private async evaluateSpokenSegment(
+    rawTranscript: string,
+    callbacks?: OrchestratorStateCallbacks,
+    alternatives: string[] = [],
+    fromPartial = false
+  ): Promise<void> {
+    const raw = rawTranscript.trim();
+    if (!raw) return;
+    const now = Date.now();
+
+    // A late final for audio we already evaluated from a partial transcript
+    if (!fromPartial && this.lastPartialEvaluated) {
+      const recent = now - this.lastPartialEvaluated.at < DUPLICATE_WINDOW_MS;
+      const same =
+        normalizeTranscript(raw).toLowerCase() ===
+        normalizeTranscript(this.lastPartialEvaluated.text).toLowerCase();
+      this.lastPartialEvaluated = null;
+      if (recent && same) return;
+    }
+
+    let hypotheses = [raw, ...alternatives.filter((a) => a && a.trim())];
+
+    // Continue an incomplete phrase from the previous pause: "25 plus" … "30"
+    if (this.pendingPrefix) {
+      if (now - this.pendingPrefix.at < PENDING_PREFIX_MS) {
+        const prefix = this.pendingPrefix.text;
+        hypotheses = hypotheses.map((h) => `${prefix} ${h.trim()}`);
+      }
+      if (!fromPartial) this.pendingPrefix = null;
+    }
+
+    // Phrase ends on an operator -> wait for the rest instead of guessing.
+    // If another recognizer hypothesis is complete ("10 divided by 2"), use it.
+    const isDangling = (h: string) => DANGLING_END.test(normalizeTranscript(h));
+    const complete = hypotheses.filter((h) => !isDangling(h));
+    if (complete.length === 0) {
+      if (!fromPartial) {
+        const normalizedBest = normalizeTranscript(hypotheses[0]);
+        this.pendingPrefix = { text: hypotheses[0], at: now };
+        callbacks?.onNotice?.(null);
+        callbacks?.onTranscriptUpdate?.(`${normalizedBest} …`, false);
+      }
+      return;
+    }
+    hypotheses = complete;
+
+    // Pick the first hypothesis that contains math at all
+    let chosen: string | null = null;
+    let cleanKey = '';
+    let chosenFilter: ReturnType<typeof mathStreamFilter.filter> | null = null;
+    for (const hyp of hypotheses) {
+      const f = mathStreamFilter.filter(hyp, this.context);
+      if (!f.isPureNoise && f.cleanMathText) {
+        chosen = hyp.trim();
+        cleanKey = f.cleanMathText.trim().toLowerCase();
+        chosenFilter = f;
+        break;
+      }
+    }
+    if (!chosen || !chosenFilter) {
+      // 100% conversation ("hello", "arre suno") — ignore silently, keep listening
+      return;
+    }
+
+    // Same calculation already handled moments ago (partial fallback + late final)
+    if (
+      cleanKey === this.lastProcessedTranscript &&
+      Date.now() - this.lastEvaluatedAt < DUPLICATE_WINDOW_MS
+    ) {
+      return;
+    }
+    this.lastProcessedTranscript = cleanKey;
+    this.lastEvaluatedAt = Date.now();
+    // The pending "25 plus" (if any) has now been used
+    this.pendingPrefix = null;
+
+    if (fromPartial) {
+      this.lastPartialEvaluated = { text: raw, at: now };
+    }
+
+    // Just a number ("5", "2 lakh") = the new current value, like pressing it on the
+    // keypad. The next "plus 5" continues from it; nothing is spoken.
+    const tokenText = chosenFilter.tokenMathText?.trim() || '';
+    if (
+      isJustANumber(chosen) &&
+      !this.context.pendingClarification &&
+      !chosenFilter.needsNaturalLanguageParser &&
+      !chosenFilter.isChaining &&
+      /^-?\d+(?:\.\d+)?$/.test(tokenText)
+    ) {
+      this.setRunningValue(Number(tokenText), chosen, callbacks);
+      return;
+    }
+
+    const others = hypotheses.filter((h) => h.trim() !== chosen);
+    await this.processCommand(chosen, callbacks, {
+      isVoiceStream: true,
+      originalSpoken: chosen,
+      alternatives: others,
+    });
+
+    // A partial-based evaluation leaves the phrase in the recognizer buffer; flush it.
+    if (fromPartial) {
+      this.speech.restartSession();
+    }
+  }
+
+  /**
+   * Starts microphone listening in hands-free mode. Results are evaluated on the
+   * recognizer's final hypotheses; the mic switches itself off after a period of
+   * silence or when the user taps the mic button.
    */
   public async startVoiceSession(
     callbacks?: OrchestratorStateCallbacks
@@ -531,35 +902,38 @@ export class SmartCalcOrchestrator {
     await this.tts.stop();
     this.clearPartialEvalTimer();
     this.lastProcessedTranscript = '';
+    this.lastEvaluatedAt = 0;
+    this.pendingPrefix = null;
+    this.lastPartialEvaluated = null;
 
     await this.speech.startListening({
       onStart: () => {
+        callbacks?.onNotice?.(null);
         callbacks?.onVoiceStateChange?.('listening');
       },
       onPartialResult: (partial) => {
         callbacks?.onTranscriptUpdate?.(partial, false);
+        if (partial.trim()) callbacks?.onNotice?.(null);
         this.clearPartialEvalTimer();
 
-        // Allow natural human speech pauses (1800ms) before evaluating partial transcript stream
+        // Fallback only: Android delivers a final result ~0.5-1.5 s after speech ends.
+        // If none arrives (some iOS / OEM recognizers), evaluate the partial.
         this.partialEvalTimer = setTimeout(() => {
-          void this.evaluateSpokenSegment(partial, callbacks);
-        }, 1800);
+          this.partialEvalTimer = null;
+          void this.evaluateSpokenSegment(partial, callbacks, [], true);
+        }, PARTIAL_FALLBACK_MS);
       },
-      onFinalResult: async (finalTranscript) => {
+      onFinalResult: async (finalTranscript, alternatives) => {
         this.clearPartialEvalTimer();
-        await this.evaluateSpokenSegment(finalTranscript, callbacks);
-        // Reset after final segment so user can repeat the same phrase later if desired
-        this.lastProcessedTranscript = '';
+        await this.evaluateSpokenSegment(finalTranscript, callbacks, alternatives || []);
       },
       onError: (code, friendlyMessage) => {
-        // In continuous mode, never disrupt UI unless mic permission was explicitly denied
-        if (code !== 'MIC_PERMISSION_DENIED' && this.speech.isListening()) {
-          return;
-        }
+        // The speech service only reports errors it could not recover from.
         this.clearPartialEvalTimer();
+        callbacks?.onNotice?.(friendlyMessage);
         const errorOutput: CalculationOutput = {
           success: false,
-          formattedResult: '—',
+          formattedResult: this.context.lastFormattedResult || '—',
           displayExpression: 'Voice input',
           spokenResponse: friendlyMessage,
           errorCode: code,

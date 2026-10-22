@@ -12,8 +12,7 @@
  * - invalid input, division by zero, overflow, malformed AI JSON
  */
 
-import { AIService } from '../src/ai/AIService';
-import { nlFallbackParser } from '../src/ai/nlFallbackParser';
+import { nlFallbackParser } from '../src/parser/nlParser';
 import { calculationService } from '../src/engine/CalculationService';
 import { conversionService } from '../src/engine/ConversionService';
 import { CurrencyService } from '../src/engine/CurrencyService';
@@ -429,19 +428,12 @@ describe('SmartCalc AI - Safe Calculation Engine & Natural Language Parser', () 
       );
       expect(nonFiniteValues.valid).toBe(false);
 
-      // Test AIService throwing MALFORMED_AI_RESPONSE when LLM returns garbage
-      const testAI = new AIService();
-      testAI.setMockRawResponseOverride(async () => 'NOT_JSON_AT_ALL');
-      await expect(
-        testAI.interpretCommand('2 + 2', createEmptyContext())
-      ).rejects.toMatchObject({
-        code: 'MALFORMED_AI_RESPONSE',
-      });
+      const garbage = parseAndValidateAIResponse('NOT_JSON_AT_ALL');
+      expect(garbage.valid).toBe(false);
     });
 
-    test('Currency conversion never invents rates when live data is unavailable', async () => {
+    test('Currency conversion never invents rates when no offline rate is saved', async () => {
       const curr = new CurrencyService();
-      curr.setAllowLiveNetworkFetch(false);
 
       const intent = nlFallbackParser.parse(
         'Convert 100 dollars to rupees',
@@ -451,7 +443,13 @@ describe('SmartCalc AI - Safe Calculation Engine & Natural Language Parser', () 
       const out = await curr.executeIntent(intent);
       expect(out.success).toBe(false);
       expect(out.errorCode).toBe('CURRENCY_UNAVAILABLE');
-      expect(out.spokenResponse).toBe("Current exchange-rate data isn't available.");
+      expect(out.spokenResponse).toContain('Set the INR exchange rate in Settings');
+
+      // With a saved offline rate (1 USD = 83.5 INR) it converts without any network
+      curr.setRates({ INR: 83.5 });
+      const ok = await curr.executeIntent(intent);
+      expect(ok.success).toBe(true);
+      expect(ok.resultNumber).toBe(8350);
     });
   });
 });

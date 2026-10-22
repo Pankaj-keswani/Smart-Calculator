@@ -3,7 +3,7 @@ import {
   canMergeCompoundNumbers,
   mergeCompoundSpokenNumbers,
 } from '../src/utils/compoundNumberParser';
-import { replaceSpokenNumbers, nlFallbackParser } from '../src/ai/nlFallbackParser';
+import { replaceSpokenNumbers, nlFallbackParser } from '../src/parser/nlParser';
 import { calculationService } from '../src/engine/CalculationService';
 import { ConversationContext } from '../src/models/types';
 

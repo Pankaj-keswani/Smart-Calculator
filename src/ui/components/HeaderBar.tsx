@@ -19,7 +19,6 @@ interface HeaderBarProps {
   onOpenHistory: () => void;
   onOpenSettings: () => void;
   onLaunchFloating?: () => void;
-  isCloudAIConfigured: boolean;
   historyCount: number;
 }
 
@@ -187,7 +186,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 
         <TouchableOpacity
           accessibilityRole="button"
-          accessibilityLabel="Open Settings (Theme, Language, AI)"
+          accessibilityLabel="Open Settings"
           onPress={() => {
             void triggerLightHaptic();
             onOpenSettings();

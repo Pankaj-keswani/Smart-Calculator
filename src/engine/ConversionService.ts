@@ -800,7 +800,12 @@ export class ConversionService {
     }
 
     const convertedNum = this.convertValue(val, fromDef, toDef);
-    const formattedNum = calculationService.formatNumber(convertedNum);
+    // Show conversions like people say them: 31.0686 miles, not 31.0685596119
+    const displayNum =
+      Math.abs(convertedNum) >= 1
+        ? Number(convertedNum.toFixed(4))
+        : Number(convertedNum.toPrecision(6));
+    const formattedNum = calculationService.formatNumber(displayNum);
     const inputFormatted = calculationService.formatNumber(val);
 
     // Determine human-friendly unit labels

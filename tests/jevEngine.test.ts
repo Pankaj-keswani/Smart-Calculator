@@ -16,7 +16,7 @@
  * - Section 16 & 18: Developer Debug Mode trace & API key redaction
  */
 
-import { nlFallbackParser } from '../src/ai/nlFallbackParser';
+import { nlFallbackParser } from '../src/parser/nlParser';
 import { CurrencyService } from '../src/engine/CurrencyService';
 import {
   JevCalculationEngine,
@@ -348,18 +348,15 @@ describe('JEV Deterministic Calculation Architecture (Sections 1–18)', () => {
       expect(res.formattedResult).toBe('5000 meters');
     });
 
-    test('CurrencyService never invents exchange rates when offline', async () => {
+    test('CurrencyService never invents exchange rates (offline rates only)', async () => {
       const service = new CurrencyService();
-      service.setAllowLiveNetworkFetch(false);
       const intent = nlFallbackParser.parse(
         'Convert 50 USD to INR',
         createContext()
       );
       const out = await service.executeIntent(intent);
       expect(out.success).toBe(false);
-      expect(out.spokenResponse).toBe(
-        "Current exchange-rate data isn't available."
-      );
+      expect(out.errorCode).toBe('CURRENCY_UNAVAILABLE');
     });
   });
 

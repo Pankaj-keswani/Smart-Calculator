@@ -76,7 +76,7 @@ export function parseAndValidateAIResponse(raw: string | unknown): ValidationRes
   if (typeof raw === 'string') {
     const trimmed = raw.trim();
     if (!trimmed) {
-      return { valid: false, error: 'Empty AI response.' };
+      return { valid: false, error: 'Empty intent.' };
     }
 
     // Strip markdown ```json ... ``` wrapper if present
@@ -97,17 +97,17 @@ export function parseAndValidateAIResponse(raw: string | unknown): ValidationRes
     } catch {
       return {
         valid: false,
-        error: 'Malformed JSON returned by AI interpretation layer.',
+        error: 'Malformed intent JSON.',
       };
     }
   } else if (typeof raw === 'object' && raw !== null) {
     parsed = raw;
   } else {
-    return { valid: false, error: 'AI response must be a JSON object.' };
+    return { valid: false, error: 'Intent must be a JSON object.' };
   }
 
   if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-    return { valid: false, error: 'AI response root must be a JSON object.' };
+    return { valid: false, error: 'Intent root must be a JSON object.' };
   }
 
   const obj = { ...(parsed as Record<string, unknown>) };

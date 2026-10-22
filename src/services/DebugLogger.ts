@@ -75,7 +75,7 @@ export class DebugLogger {
       'Voice input:',
       `"${cleanInput}"`,
       '',
-      'AI normalized intent:',
+      'Parsed intent:',
       cleanIntent,
       '',
       'Normalized expression:',

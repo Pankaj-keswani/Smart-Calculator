@@ -1,16 +1,28 @@
 /**
- * Modular Currency Conversion Service (CurrencyService)
+ * Offline Currency Conversion Service (CurrencyService)
  *
- * CRITICAL GUARANTEE:
- * - Never invents or hardcodes static exchange rates.
- * - Queries a configurable external exchange-rate API (or custom injected provider).
- * - If live exchange-rate data is unavailable (offline, API unreachable, or disabled),
- *   clearly informs the user that current live conversion data is unavailable.
+ * 100% on-device: uses the exchange rates the user saved in Settings
+ * ("1 USD = 83.20 INR"). The app never downloads rates and never invents them —
+ * if a rate is missing, the user is told exactly which rate to set.
  */
 
-import { CurrencyApiConfig, getDefaultCurrencyApiConfig } from '../config/env';
 import { CalculationOutput, StructuredAIIntent } from '../models/types';
 import { calculationService } from './CalculationService';
+
+/** Currencies offered in Settings. Rates are stored as "1 USD = X <code>". */
+export const RATE_CURRENCIES: Array<{ code: string; label: string }> = [
+  { code: 'INR', label: 'Indian Rupee' },
+  { code: 'EUR', label: 'Euro' },
+  { code: 'GBP', label: 'British Pound' },
+  { code: 'AED', label: 'UAE Dirham' },
+  { code: 'SAR', label: 'Saudi Riyal' },
+  { code: 'JPY', label: 'Japanese Yen' },
+  { code: 'CNY', label: 'Chinese Yuan' },
+  { code: 'CAD', label: 'Canadian Dollar' },
+  { code: 'AUD', label: 'Australian Dollar' },
+  { code: 'SGD', label: 'Singapore Dollar' },
+  { code: 'CHF', label: 'Swiss Franc' },
+];
 
 export interface ExchangeRateQuote {
   from: string;
@@ -72,6 +84,11 @@ const CURRENCY_ALIASES: Record<string, string> = {
   sgd: 'SGD',
   'singapore dollar': 'SGD',
   'singapore dollars': 'SGD',
+  sar: 'SAR',
+  riyal: 'SAR',
+  riyals: 'SAR',
+  'saudi riyal': 'SAR',
+  'saudi riyals': 'SAR',
 };
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -86,30 +103,28 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   CNY: '¥',
   AED: 'AED ',
   SGD: 'S$',
+  SAR: 'SAR ',
 };
 
 export class CurrencyService {
-  private config: CurrencyApiConfig;
   private customProvider: ExchangeRateProviderFn | null = null;
-  private allowLiveNetworkFetch = true;
+  /** "1 USD = rates[code] code"; USD is always 1. */
+  private rates: Record<string, number> = {};
 
-  constructor(config?: CurrencyApiConfig) {
-    this.config = config || getDefaultCurrencyApiConfig();
+  /** Updates the user-saved offline rates (from Settings). */
+  public setRates(rates: Record<string, number> | undefined | null): void {
+    const clean: Record<string, number> = {};
+    for (const [code, value] of Object.entries(rates || {})) {
+      if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+        clean[code.toUpperCase()] = value;
+      }
+    }
+    this.rates = clean;
   }
 
-  public updateConfig(config: Partial<CurrencyApiConfig>): void {
-    this.config = { ...this.config, ...config };
-  }
-
-  /**
-   * Allows plugging in a custom exchange rate provider or disabling live network calls in offline/test environments.
-   */
+  /** Allows tests or other on-device sources to supply rates. */
   public setCustomRateProvider(provider: ExchangeRateProviderFn | null): void {
     this.customProvider = provider;
-  }
-
-  public setAllowLiveNetworkFetch(allow: boolean): void {
-    this.allowLiveNetworkFetch = allow;
   }
 
   public normalizeCurrencyCode(raw: string | null | undefined): string | null {
@@ -124,63 +139,27 @@ export class CurrencyService {
     return null;
   }
 
-  public async fetchLiveRate(
+  private usdRate(code: string): number | null {
+    if (code === 'USD') return 1;
+    const r = this.rates[code];
+    return typeof r === 'number' && r > 0 ? r : null;
+  }
+
+  /** Returns the conversion rate from the saved offline rates (or a custom provider). */
+  public async getRate(
     fromCode: string,
     toCode: string
   ): Promise<ExchangeRateQuote | null> {
     if (fromCode === toCode) {
       return { from: fromCode, to: toCode, rate: 1, timestamp: Date.now() };
     }
-
     if (this.customProvider) {
       return this.customProvider(fromCode, toCode);
     }
-
-    if (!this.allowLiveNetworkFetch || !this.config.apiUrl) {
-      return null;
-    }
-
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 5000);
-
-      const baseUrl = this.config.apiUrl.replace(/\/+$/, '');
-      const url = `${baseUrl}/${encodeURIComponent(fromCode)}`;
-      const headers: Record<string, string> = {
-        Accept: 'application/json',
-      };
-      if (this.config.apiKey) {
-        headers.Authorization = `Bearer ${this.config.apiKey}`;
-      }
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers,
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
-
-      if (!response.ok) {
-        return null;
-      }
-
-      const data = (await response.json()) as Record<string, unknown>;
-      const rates = (data.rates || data.conversion_rates) as
-        | Record<string, number>
-        | undefined;
-      if (!rates || typeof rates[toCode] !== 'number' || !Number.isFinite(rates[toCode])) {
-        return null;
-      }
-
-      return {
-        from: fromCode,
-        to: toCode,
-        rate: rates[toCode],
-        timestamp: Date.now(),
-      };
-    } catch {
-      return null;
-    }
+    const fromUsd = this.usdRate(fromCode);
+    const toUsd = this.usdRate(toCode);
+    if (fromUsd === null || toUsd === null) return null;
+    return { from: fromCode, to: toCode, rate: toUsd / fromUsd, timestamp: Date.now() };
   }
 
   public async executeIntent(intent: StructuredAIIntent): Promise<CalculationOutput> {
@@ -218,9 +197,10 @@ export class CurrencyService {
       };
     }
 
-    const quote = await this.fetchLiveRate(fromCode, toCode);
+    const quote = await this.getRate(fromCode, toCode);
     if (!quote) {
-      const unavailableMsg = "Current exchange-rate data isn't available.";
+      const missing = [fromCode, toCode].filter((c) => this.usdRate(c) === null);
+      const unavailableMsg = `Set the ${missing.join(' and ')} exchange rate in Settings → Currency rates. Conversion works offline with your saved rates.`;
       return {
         success: false,
         formattedResult: 'Unavailable',
@@ -245,7 +225,7 @@ export class CurrencyService {
       displayExpression: `${formattedAmount} ${fromCode} → ${toCode}`,
       spokenResponse: `${formattedAmount} ${fromCode} is approximately ${formattedConverted} ${toCode}.`,
       unit: toCode,
-      breakdown: `Live rate: 1 ${fromCode} = ${calculationService.formatNumber(quote.rate)} ${toCode}`,
+      breakdown: `Your saved rate: 1 ${fromCode} = ${calculationService.formatNumber(Number(quote.rate.toPrecision(6)))} ${toCode}`,
       intent,
     };
   }

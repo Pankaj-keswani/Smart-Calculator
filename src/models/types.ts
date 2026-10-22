@@ -2,8 +2,6 @@
  * Core Domain Models & Types for SmartCalc AI
  */
 
-import { AIProviderType } from '../config/env';
-
 export type IntentType =
   | 'calculate'
   | 'percentage'
@@ -193,11 +191,6 @@ export type AccentColorTheme = 'gold' | 'emerald' | 'cyan' | 'orange' | 'rose';
 export type SoundEffectTheme = 'modern' | 'mechanical' | 'bubble' | 'silent';
 
 export interface AppSettings {
-  aiProvider: AIProviderType;
-  aiApiKey: string;
-  aiBaseUrl: string;
-  aiModel: string;
-  useCloudAIWhenAvailable: boolean;
   ttsEnabled: boolean;
   ttsRate: number;
   ttsPitch: number;
@@ -207,7 +200,9 @@ export interface AppSettings {
   accentTheme: AccentColorTheme;
   soundTheme: SoundEffectTheme;
   hapticsEnabled: boolean;
-  currencyApiUrl: string;
-  currencyApiKey: string;
+  /** Offline exchange rates saved by the user: 1 USD = exchangeRates[code] code. */
+  exchangeRates: Record<string, number>;
+  /** Epoch ms when the user last edited exchange rates. */
+  exchangeRatesUpdatedAt?: number;
   debugModeEnabled?: boolean;
 }

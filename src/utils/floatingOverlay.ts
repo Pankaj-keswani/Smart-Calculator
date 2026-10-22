@@ -70,7 +70,7 @@ export async function launchFloatingCalculator(): Promise<boolean> {
   if (!granted) {
     rn?.Alert?.alert(
       'Overlay Permission Required',
-      'To calculate over WhatsApp, Amazon, or Excel without switching apps, please allow "Display over other apps" for SmartCalc AI.',
+      'To calculate over WhatsApp, Amazon, or Excel without switching apps, please allow "Display over other apps" for VoiceCalc AI.',
       [
         { text: 'Cancel', style: 'cancel' },
         {

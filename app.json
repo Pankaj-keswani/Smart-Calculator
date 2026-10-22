@@ -2,7 +2,7 @@
   "expo": {
     "name": "VoiceCalc AI: Smart Calculator",
     "slug": "voicecalc-ai",
-    "version": "1.0.1",
+    "version": "1.1",
     "icon": "./assets/icon.png",
     "sdkVersion": "57.0.0",
     "orientation": "portrait",
@@ -24,8 +24,7 @@
     "android": {
       "package": "com.voicecalcai.app",
       "permissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.INTERNET"
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {

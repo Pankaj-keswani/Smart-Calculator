@@ -1,4 +1,4 @@
-import { mathStreamFilter } from '../src/ai/MathStreamFilter';
+import { mathStreamFilter } from '../src/parser/MathStreamFilter';
 import { ConversationContext } from '../src/models/types';
 
 function createMockContext(lastResult: number | null = null): ConversationContext {

@@ -9,12 +9,21 @@
  */
 
 import { ConversationContext } from '../models/types';
-import { replaceSpokenNumbers, mergeCompoundSpokenNumbers } from './nlFallbackParser';
+import { mergeCompoundSpokenNumbers } from './nlParser';
+import { hasRichMathKeywords, normalizeTranscript } from '../voice/transcriptNormalizer';
 
 export interface FilteredMathStreamResult {
   isPureNoise: boolean;
   isChaining: boolean;
   cleanMathText: string | null;
+  /**
+   * Pure token-only arithmetic extraction ("2 + 4"), always computed when the
+   * transcript contains numbers. Equals cleanMathText unless the phrase needs the
+   * full natural-language parser (functions, %, conversions, splits...).
+   */
+  tokenMathText?: string | null;
+  /** True when the phrase uses vocabulary only the NL parser understands. */
+  needsNaturalLanguageParser?: boolean;
   rawText: string;
 }
 
@@ -51,9 +60,9 @@ export class MathStreamFilter {
       };
     }
 
-    // Step 1: Clean punctuation and normalize spoken number words to digits ("two" -> "2", "twenty five" -> "25", "do hazar" -> "2000")
-    let s = raw.replace(/,/g, ' ').replace(/[?!;:=]+$/g, '');
-    s = replaceSpokenNumbers(s);
+    // Step 1: Canonicalize the transcript: unicode operators, "1,00,000", "₹500",
+    // "2 lakh", Devanagari, spoken brackets, trailing "is/equals", number words -> digits
+    let s = normalizeTranscript(raw).replace(/,/g, ' ');
     s = mergeCompoundSpokenNumbers(s);
 
     // Step 1.5: Strip conversational noise phrases and words BEFORE structural normalization
@@ -113,11 +122,10 @@ export class MathStreamFilter {
     s = s.replace(/(\d+)\s*(?:point|dot|dashamlav|दशमलव)\s*(\d+)/gi, '$1.$2');
     s = s.replace(/(?:^|\s)(?:point|dot|dashamlav|दशमलव)\s*(\d+)/gi, ' 0.$1');
 
-    // Step 3: Handle everyday math phrasing (percentages, GST, discounts, currency, units, Hinglish context)
-    const isSpecialEveryday =
-      /\b(?:percent|percentage|pratishat|प्रतिशत|discount|off|gst|tip|dollar|euro|rupee|inr|km|kilometer|meter|kg|gram|usme|usmein|usko)\b/i.test(
-        s
-      );
+    // Step 3: Phrases that need the full NL parser (percentages, GST, discounts, currency,
+    // units, functions like "squared"/"factorial"/"sin", "half of", "split", context words)
+    const isSpecialEveryday = hasRichMathKeywords(s);
+    const tokenMathText = this.extractTokenMath(s, context).text;
 
     if (isSpecialEveryday) {
       const cleanEveryday = s
@@ -128,13 +136,60 @@ export class MathStreamFilter {
         .replace(/\b(?:then|someone|came|hello|hi|hey|wait|bro|bhai|arre|suno)\b/gi, '')
         .replace(/\s+/g, ' ')
         .trim();
+      // Words like "in"/"to"/"left" without any number or reference to a previous
+      // result are just conversation ("what time is it in London") -> ignore silently.
+      const refersToPrevious =
+        /\b(?:that|it|previous|last|answer|result|usme|usmein|usko|isme|isko|recall|memory|half|double|twice|triple|square|cube|root)\b/i.test(
+          raw
+        );
+      if (!/\d/.test(cleanEveryday) && !refersToPrevious) {
+        return {
+          isPureNoise: true,
+          isChaining: false,
+          cleanMathText: null,
+          tokenMathText: null,
+          rawText: raw,
+        };
+      }
       return {
         isPureNoise: false,
         isChaining: false,
         cleanMathText: cleanEveryday,
+        tokenMathText,
+        needsNaturalLanguageParser: true,
         rawText: raw,
       };
     }
+
+    const extracted = this.extractTokenMath(s, context);
+    if (!extracted.text) {
+      return {
+        isPureNoise: true,
+        isChaining: false,
+        cleanMathText: null,
+        tokenMathText: null,
+        rawText: raw,
+      };
+    }
+    return {
+      isPureNoise: false,
+      isChaining: extracted.isChaining,
+      cleanMathText: extracted.text,
+      tokenMathText: extracted.text,
+      needsNaturalLanguageParser: false,
+      rawText: raw,
+    };
+  }
+
+  /**
+   * Token-only extraction: rewrites operator words to symbols and keeps only numbers,
+   * operators, brackets and simple functions. Conversational words are discarded.
+   */
+  private extractTokenMath(
+    input: string,
+    context: ConversationContext
+  ): { text: string | null; isChaining: boolean } {
+    let s = input;
 
     // Step 3.5: Normalize natural language prefix/Hinglish verb structures before token stripping
     // "add 2 and 3" -> "2 + 3"
@@ -168,12 +223,12 @@ export class MathStreamFilter {
 
     // Step 4: Normalize powers and roots
     s = s.replace(
-      /(?:square\s+root\s+of|under\s*root\s+of|root\s+of|under\s*root|\broot)\s+(-?\d+(?:\.\d+)?)/gi,
-      'sqrt($1)'
-    );
-    s = s.replace(
       /(?:cube\s+root\s+of|cube\s+root)\s+(-?\d+(?:\.\d+)?)/gi,
       'cbrt($1)'
+    );
+    s = s.replace(
+      /(?:square\s+root\s+of|under\s*root\s+of|root\s+of|under\s*root|\broot)\s+(-?\d+(?:\.\d+)?)/gi,
+      'sqrt($1)'
     );
     s = s.replace(
       /(-?\d+(?:\.\d+)?)\s+(?:raised\s+to\s+(?:the\s+)?power\s+(?:of\s+)?|to\s+the\s+power\s+of|power)\s+(-?\d+(?:\.\d+)?)/gi,
@@ -212,8 +267,13 @@ export class MathStreamFilter {
     // Step 6: Detect chaining onto previous calculated result
     const hasPreviousResult =
       context.lastResult !== null && Number.isFinite(context.lastResult);
-    const startsWithOpMatch = s.match(/^\s*([+\-*/^])/);
-    const isChaining = Boolean(startsWithOpMatch && hasPreviousResult);
+    // "x 3" / "by 2" at the start (after any filler words) continue the last answer
+    if (hasPreviousResult) {
+      s = s.replace(
+        /^(\s*(?:[a-z']+\s+)*?)(x|×|by)\s+(?=-?\d)/i,
+        (_m, pre: string, op: string) => `${pre} ${op.toLowerCase() === 'by' ? '/' : '*'} `
+      );
+    }
 
     // Step 7: Extract ONLY valid mathematical tokens (numbers, functions, math operators)
     const tokenRegex =
@@ -226,14 +286,15 @@ export class MathStreamFilter {
     }
 
     // If zero numbers or math operators are detected, it's pure conversational noise
-    if (mathTokens.length === 0) {
-      return {
-        isPureNoise: true,
-        isChaining: false,
-        cleanMathText: null,
-        rawText: raw,
-      };
+    if (mathTokens.length === 0 || !mathTokens.some((t) => /\d/.test(t))) {
+      return { text: null, isChaining: false };
     }
+
+    // Chaining: the first math token is an operator ("again plus 2" -> "+ 2"),
+    // or the phrase itself starts with one ("-1")
+    const isChaining =
+      hasPreviousResult &&
+      (/^[+\-*/^]$/.test(mathTokens[0]) || /^\s*[+\-*/^]/.test(s));
 
     let assembled = mathTokens.join(' ');
 
@@ -252,14 +313,12 @@ export class MathStreamFilter {
       .replace(/\s+/g, ' ')
       .trim();
 
+    // Drop dangling trailing operators ("100 + 200 +")
+    assembled = assembled.replace(/\s*[+\-*/^]\s*$/, '').trim();
+
     assembled = mergeCompoundSpokenNumbers(assembled);
 
-    return {
-      isPureNoise: false,
-      isChaining,
-      cleanMathText: assembled,
-      rawText: raw,
-    };
+    return { text: assembled || null, isChaining };
   }
 }
 

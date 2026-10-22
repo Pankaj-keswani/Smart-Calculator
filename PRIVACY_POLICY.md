@@ -1,6 +1,6 @@
 # Privacy Policy for VoiceCalc AI
 
-**Last Updated:** October 14, 2026  
+**Last Updated:** October 19, 2026  
 **Effective Date:** October 14, 2026  
 **Developer:** VoiceCalc AI Team  
 **Contact:** [support@smartcalc.ai](mailto:support@smartcalc.ai)  
@@ -21,8 +21,8 @@ To provide hands-free voice calculation and multi-tasking overlay features, Voic
 
 ### A. Microphone (`android.permission.RECORD_AUDIO`)
 - **Purpose:** Used exclusively when you activate voice calculation to convert spoken words into mathematical operations in real time.
-- **Handling:** Audio is processed in memory on your device using Android's system speech recognizer (`android.speech.SpeechRecognizer`). We **never** save audio files to permanent storage, and we **never** upload your voice to any remote server or third-party cloud.
-- **Duration:** Microphone listening automatically terminates after 3.5 seconds of silence or when you tap the mic button to stop.
+- **Handling:** Speech is turned into text by your phone's built-in speech service (`android.speech.SpeechRecognizer`, e.g. Speech Services by Google). When the offline speech pack for your language is installed (in-app: Settings → Offline Speech), recognition runs fully on your device. Without that pack, your phone's speech service may use its own online recognition, under that provider's privacy policy. VoiceCalc itself **never** saves audio files and has **no** network access: release builds do not include Android's `INTERNET` permission.
+- **Duration:** The microphone switches off automatically after about 12–15 seconds of silence, or when you tap the mic button.
 
 ### B. Display Over Other Apps (`android.permission.SYSTEM_ALERT_WINDOW`)
 - **Purpose:** Used solely to enable the optional **Floating Overlay Mode**, allowing a compact calculator bubble to float over applications like WhatsApp, Amazon, or Excel.
@@ -35,7 +35,7 @@ To provide hands-free voice calculation and multi-tasking overlay features, Voic
 
 ## 3. Calculation Data & Local Storage
 
-All calculations, custom variables, formulas, unit conversions, and history entries are saved strictly within your device's private sandboxed application storage (`AsyncStorage`).
+All calculations, custom variables, formulas, unit conversions, currency rates you enter, and history entries are computed on the device and saved strictly within your device's private sandboxed application storage (`AsyncStorage`).
 
 - **No Accounts Required:** No user account or registration is required to use the app.
 - **No Cloud Synchronization:** Your calculation history is never synced to the cloud.
@@ -51,7 +51,7 @@ VoiceCalc AI contains:
 - **NO** behavioral telemetry trackers
 - **NO** data brokers
 
-We do not track your location, your device identifiers, or your usage habits.
+We do not track your location, your device identifiers, or your usage habits. The app uses no AI or cloud service and requires no API key.
 
 ---
 
@@ -63,7 +63,7 @@ VoiceCalc AI is completely safe for all audiences and does not collect any perso
 
 ## 6. Data Security
 
-Because all processing occurs strictly within the local Android OS sandbox without outbound network communication for calculations, your financial and computational data is naturally protected against interception, man-in-the-middle attacks, and remote server leaks.
+Because all processing occurs within the local Android OS sandbox and the app has no network permission, your financial and computational data is naturally protected against interception, man-in-the-middle attacks, and remote server leaks.
 
 ---
 
@@ -75,4 +75,4 @@ If you have any questions, suggestions, or concerns regarding this Privacy Polic
 - **Repository:** [VoiceCalc AI on GitHub](https://github.com/)
 
 ---
-*© 2026 VoiceCalc AI. Built with local on-device intelligence. All rights reserved.*
+*© 2026 VoiceCalc AI. Works entirely on your device. All rights reserved.*

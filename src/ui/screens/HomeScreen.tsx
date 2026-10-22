@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Linking,
@@ -10,7 +10,6 @@ import {
   View,
 } from 'react-native';
 import { launchFloatingCalculator } from '../../utils/floatingOverlay';
-import { aiService } from '../../ai/AIService';
 import { getStrings } from '../../localization/i18n';
 import {
   AppMode,
@@ -50,6 +49,7 @@ export const HomeScreen: React.FC = () => {
   const [mode, setMode] = useState<AppMode>('calculator');
   const [voiceState, setVoiceState] = useState<VoiceInteractionState>('idle');
   const [transcript, setTranscript] = useState<string>('');
+  const [voiceNotice, setVoiceNotice] = useState<string | null>(null);
   const [output, setOutput] = useState<CalculationOutput>(INITIAL_OUTPUT);
   const [context, setContext] = useState<ConversationContext>(
     smartCalcOrchestrator.getContext()
@@ -96,6 +96,9 @@ export const HomeScreen: React.FC = () => {
     onContextUpdate: (nextContext: ConversationContext) => {
       setContext(nextContext);
     },
+    onNotice: (message: string | null) => {
+      setVoiceNotice(message);
+    },
   };
 
   const handleMicPress = useCallback(async () => {
@@ -107,26 +110,41 @@ export const HomeScreen: React.FC = () => {
     await smartCalcOrchestrator.startVoiceSession(orchestratorCallbacks);
   }, [voiceState]);
 
-  // Deep linking & Quick Settings Tile / Shortcuts auto-activation
+  // Keep the latest voice state / handler reachable from the one-time deep-link effect
+  const voiceStateRef = useRef<VoiceInteractionState>(voiceState);
+  voiceStateRef.current = voiceState;
+  const initialUrlHandledRef = useRef(false);
+
+  // Deep linking & Quick Settings Tile / Widget / Shortcuts auto-activation.
+  // Registered ONCE: re-running this effect on every voice-state change used to
+  // re-read the same initial "smartcalc://voice" URL and toggle the mic off/on.
   useEffect(() => {
     const handleUrl = (url: string | null) => {
       if (!url) return;
       if (url.includes('voice')) {
         setMode('voice');
         setTimeout(() => {
-          void handleMicPress();
+          // Start listening (never toggle off) when launched from widget / tile
+          if (voiceStateRef.current === 'idle') {
+            void smartCalcOrchestrator.startVoiceSession(orchestratorCallbacks);
+          }
         }, 350);
       } else if (url.includes('history')) {
         setHistoryModalVisible(true);
       }
     };
 
-    void Linking.getInitialURL().then(handleUrl);
+    void Linking.getInitialURL().then((url) => {
+      if (initialUrlHandledRef.current) return;
+      initialUrlHandledRef.current = true;
+      handleUrl(url);
+    });
     const sub = Linking.addEventListener('url', (event) => handleUrl(event.url));
     return () => {
       sub.remove();
     };
-  }, [handleMicPress]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleNaturalCommandSubmit = useCallback(async (cmd: string) => {
     await smartCalcOrchestrator.processCommand(cmd, orchestratorCallbacks);
@@ -220,7 +238,6 @@ export const HomeScreen: React.FC = () => {
           onOpenHistory={() => setHistoryModalVisible(true)}
           onOpenSettings={() => setSettingsModalVisible(true)}
           onLaunchFloating={() => void launchFloatingCalculator()}
-          isCloudAIConfigured={aiService.isCloudConfigured()}
           historyCount={historyItems.length}
         />
 
@@ -232,6 +249,7 @@ export const HomeScreen: React.FC = () => {
                 theme={theme}
                 strings={strings}
                 transcript={transcript}
+                notice={voiceNotice}
                 output={output}
                 context={context}
                 onResetContext={handleResetContext}
@@ -265,6 +283,7 @@ export const HomeScreen: React.FC = () => {
             reuseVersion={reuseVersion}
             voiceState={voiceState}
             transcript={transcript}
+            voiceNotice={voiceNotice}
             historyItems={historyItems}
             onSelectHistoryItem={handleReuseHistoryItem}
             onOpenHistory={() => setHistoryModalVisible(true)}
@@ -287,7 +306,7 @@ export const HomeScreen: React.FC = () => {
           onClearAll={() => void historyService.clearAll()}
         />
 
-        {/* Settings & AI API Configuration Modal */}
+        {/* Settings Modal */}
         <SettingsModal
           visible={settingsModalVisible}
           theme={theme}

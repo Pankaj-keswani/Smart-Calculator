@@ -1,4 +1,4 @@
-import { nlFallbackParser } from '../src/ai/nlFallbackParser';
+import { nlFallbackParser } from '../src/parser/nlParser';
 import { ConversationContext } from '../src/models/types';
 import { ACCENT_PALETTES, DARK_THEME, getTheme, LIGHT_THEME } from '../src/theme/theme';
 import {

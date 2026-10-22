@@ -51,19 +51,19 @@ export const QuickPromptsBar: React.FC<QuickPromptsBarProps> = ({
           placeholderTextColor={theme.textMuted}
           returnKeyType="send"
           onSubmitEditing={handleSend}
-          accessibilityLabel="Natural language calculation command input"
+          accessibilityLabel="Type a calculation"
           style={[styles.input, { color: theme.textPrimary }]}
         />
         <TouchableOpacity
           accessibilityRole="button"
-          accessibilityLabel="Run natural language command"
+          accessibilityLabel="Calculate typed command"
           onPress={handleSend}
           disabled={!textCommand.trim()}
           style={[
             styles.sendBtn,
             {
               backgroundColor: textCommand.trim()
-                ? theme.accent
+                ? theme.keypadEqualsBg
                 : theme.surfaceElevated,
             },
           ]}
@@ -72,7 +72,7 @@ export const QuickPromptsBar: React.FC<QuickPromptsBarProps> = ({
             style={[
               styles.sendBtnText,
               {
-                color: textCommand.trim() ? '#FFFFFF' : theme.textMuted,
+                color: textCommand.trim() ? theme.keypadEqualsText : theme.textMuted,
               },
             ]}
           >

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   Platform,
@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Switch,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -16,6 +17,17 @@ import { AppSettings, SupportedLanguage } from '../../models/types';
 import { ThemeColors } from '../../theme/theme';
 import { launchFloatingCalculator } from '../../utils/floatingOverlay';
 import { triggerKeypadHaptic, triggerLightHaptic } from '../../utils/haptics';
+import { RATE_CURRENCIES } from '../../engine/CurrencyService';
+import { OfflineSpeechStatus, speechService } from '../../services/SpeechService';
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const APP_VERSION: string = (() => {
+  try {
+    return require('../../../app.json').expo.version || '';
+  } catch {
+    return '';
+  }
+})();
 
 interface SettingsModalProps {
   visible: boolean;
@@ -26,14 +38,23 @@ interface SettingsModalProps {
   onClose: () => void;
 }
 
-const LANGUAGES: Array<{ id: SupportedLanguage; label: string; native: string }> = [
-  { id: 'en-US', label: 'English (US)', native: 'English' },
-  { id: 'en-IN', label: 'Indian English', native: 'Hinglish' },
-  { id: 'hi-IN', label: 'Hindi', native: 'हिन्दी' },
-  { id: 'es-ES', label: 'Spanish', native: 'Español' },
-  { id: 'fr-FR', label: 'French', native: 'Français' },
-  { id: 'de-DE', label: 'German', native: 'Deutsch' },
+const LANGUAGES: Array<{ id: SupportedLanguage; label: string }> = [
+  { id: 'en-IN', label: 'English (India) · Hinglish' },
+  { id: 'en-US', label: 'English (US)' },
+  { id: 'hi-IN', label: 'हिन्दी (Hindi)' },
+  { id: 'es-ES', label: 'Español' },
+  { id: 'fr-FR', label: 'Français' },
+  { id: 'de-DE', label: 'Deutsch' },
 ];
+
+const SPEECH_STATUS_TEXT: Record<OfflineSpeechStatus, string> = {
+  ready: '✓ Ready — your voice is recognized on this phone, offline.',
+  'download-needed':
+    'Language pack not installed yet. Download it once (about 50 MB) to recognize speech fully offline.',
+  'prefer-offline':
+    "Uses your phone's offline voice-typing pack. If voice fails without internet, download it below.",
+  unavailable: "Speech recognition isn't available on this device.",
+};
 
 const SPEECH_RATES = [0.8, 1.0, 1.2, 1.4];
 
@@ -46,6 +67,55 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
 }) => {
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
+  const [speechStatus, setSpeechStatus] = useState<OfflineSpeechStatus | null>(null);
+  const [speechMessage, setSpeechMessage] = useState<string | null>(null);
+  const [rateDrafts, setRateDrafts] = useState<Record<string, string>>({});
+
+  // Offline speech pack status for the selected language
+  useEffect(() => {
+    if (!visible) return;
+    let alive = true;
+    setSpeechMessage(null);
+    void speechService.getOfflineSpeechStatus(settings.language).then((st) => {
+      if (alive) setSpeechStatus(st);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [visible, settings.language]);
+
+  // Load saved exchange rates into editable text fields when opened
+  useEffect(() => {
+    if (!visible) return;
+    const drafts: Record<string, string> = {};
+    for (const c of RATE_CURRENCIES) {
+      const v = settings.exchangeRates?.[c.code];
+      drafts[c.code] = typeof v === 'number' ? String(v) : '';
+    }
+    setRateDrafts(drafts);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible]);
+
+  const commitRate = (code: string) => {
+    const raw = (rateDrafts[code] || '').replace(/,/g, '.').trim();
+    const value = parseFloat(raw);
+    const next = { ...(settings.exchangeRates || {}) };
+    if (Number.isFinite(value) && value > 0) {
+      next[code] = value;
+    } else {
+      delete next[code];
+    }
+    if (next[code] === settings.exchangeRates?.[code]) return;
+    onUpdateSettings({ exchangeRates: next, exchangeRatesUpdatedAt: Date.now() });
+  };
+
+  const handleDownloadSpeech = async () => {
+    void triggerKeypadHaptic();
+    setSpeechMessage('Requesting download…');
+    const msg = await speechService.downloadOfflineSpeech(settings.language);
+    setSpeechMessage(msg);
+    setSpeechStatus(await speechService.getOfflineSpeechStatus(settings.language));
+  };
 
   const handleClose = () => {
     void triggerLightHaptic();
@@ -106,6 +176,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         <ScrollView
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           {/* 1. APPEARANCE */}
           <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>
@@ -407,12 +478,46 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           },
                         ]}
                       >
-                        {lang.label} ({lang.native})
+                        {lang.label}
                       </Text>
                     </TouchableOpacity>
                   );
                 })}
               </View>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={[styles.fieldLabel, { color: theme.textPrimary }]}>
+                Offline Speech
+              </Text>
+              <Text style={[styles.subLabel, { color: theme.textSecondary, lineHeight: 18 }]}>
+                {speechStatus ? SPEECH_STATUS_TEXT[speechStatus] : 'Checking…'}
+              </Text>
+              {speechMessage ? (
+                <Text style={[styles.subLabel, { color: theme.keypadEqualsBg, marginTop: 6 }]}>
+                  {speechMessage}
+                </Text>
+              ) : null}
+              {(speechStatus === 'download-needed' || speechStatus === 'prefer-offline') && (
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel="Download offline speech pack"
+                  onPress={() => void handleDownloadSpeech()}
+                  style={[
+                    styles.pill,
+                    {
+                      backgroundColor: theme.keypadEqualsBg,
+                      borderColor: theme.keypadEqualsBg,
+                      alignSelf: 'flex-start',
+                      marginTop: 10,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.pillText, { color: theme.keypadEqualsText }]}>
+                    Download offline speech pack
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             <View style={styles.inputGroup}>
@@ -462,7 +567,56 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </View>
           </View>
 
-          {/* 4. QUICK ACCESS & FLOATING OVERLAY */}
+          {/* 4. OFFLINE CURRENCY RATES */}
+          <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+            CURRENCY RATES (OFFLINE)
+          </Text>
+          <View
+            style={[
+              styles.card,
+              { backgroundColor: theme.surface, borderColor: theme.border },
+            ]}
+          >
+            <Text style={[styles.subLabel, { color: theme.textSecondary, lineHeight: 18, marginBottom: 10 }]}>
+              The app never downloads rates. Enter today's rate once and say things like
+              "100 dollars to rupees". Leave a field empty to skip that currency.
+            </Text>
+            {RATE_CURRENCIES.map((c) => (
+              <View key={c.code} style={styles.rateRow}>
+                <Text style={[styles.rateLabel, { color: theme.textPrimary }]}>1 USD =</Text>
+                <TextInput
+                  value={rateDrafts[c.code] ?? ''}
+                  onChangeText={(t) =>
+                    setRateDrafts((d) => ({ ...d, [c.code]: t.replace(/[^0-9.,]/g, '') }))
+                  }
+                  onEndEditing={() => commitRate(c.code)}
+                  onSubmitEditing={() => commitRate(c.code)}
+                  keyboardType="decimal-pad"
+                  placeholder="—"
+                  placeholderTextColor={theme.textMuted}
+                  accessibilityLabel={`US dollar to ${c.label} rate`}
+                  style={[
+                    styles.rateInput,
+                    {
+                      color: theme.textPrimary,
+                      backgroundColor: theme.surfaceElevated,
+                      borderColor: theme.border,
+                    },
+                  ]}
+                />
+                <Text style={[styles.rateCode, { color: theme.textSecondary }]} numberOfLines={1}>
+                  {c.code} · {c.label}
+                </Text>
+              </View>
+            ))}
+            {settings.exchangeRatesUpdatedAt ? (
+              <Text style={[styles.versionText, { color: theme.textMuted, marginTop: 10 }]}>
+                Rates last edited {new Date(settings.exchangeRatesUpdatedAt).toLocaleDateString()}
+              </Text>
+            ) : null}
+          </View>
+
+          {/* 5. QUICK ACCESS & FLOATING OVERLAY */}
           {Platform.OS === 'android' && (
             <>
               <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>
@@ -563,7 +717,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 { color: theme.textSecondary, marginTop: 8, lineHeight: 18 },
               ]}
             >
-              All mathematical calculations and voice recognition run entirely offline on your phone without sending any data to external servers. Your history and numbers stay private.
+              No AI service, no API keys, no accounts. Every calculation is worked out by the app on your phone, and your history never leaves it. Voice is turned into text by your phone's own speech engine — with the offline speech pack installed, that happens without internet too.
             </Text>
 
             <TouchableOpacity
@@ -601,7 +755,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 { color: theme.textMuted, marginTop: 14 },
               ]}
             >
-              VoiceCalc AI • v1.0.0 (Local Build)
+              {`VoiceCalc AI${APP_VERSION ? ` • v${APP_VERSION}` : ''} • works offline`}
             </Text>
           </View>
         </ScrollView>
@@ -665,7 +819,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     { color: theme.textSecondary, marginTop: 12, lineHeight: 22, fontSize: 14 },
                   ]}
                 >
-                  {`VoiceCalc AI is designed with an offline-first, zero-knowledge architecture. Your privacy and mathematical data are strictly protected at all times.\n\n1. Zero Remote Tracking & Telemetry\nVoiceCalc AI does not collect, record, transmit, or monetize your personal information, voice recordings, or mathematical calculations.\n\n2. 100% On-Device Offline Engine\nAll numerical calculations, voice recognition, natural language query parsing, and haptic sound packs are executed entirely offline on your physical device. No internet connection is ever required.\n\n3. Sandboxed Storage\nYour calculation history and customized preferences remain strictly inside your phone's encrypted sandboxed storage and are never uploaded to any remote server or third party.\n\n4. Device Permissions\n• Microphone: Used solely for real-time speech input when you tap the mic. Audio streams are processed locally and discarded immediately after calculation.\n• Display Over Other Apps: Used exclusively for the optional Picture-in-Picture floating mini-calculator so you can calculate while multitasking.`}
+                  {`VoiceCalc AI works on your phone. It uses no AI service, needs no API key or account, and the app itself never sends data over the internet.\n\n1. No Tracking or Telemetry\nVoiceCalc AI does not collect, record, transmit, or monetize your personal information, voice recordings, or calculations.\n\n2. On-Device Processing\nAll calculations, the understanding of spoken or typed commands, unit conversions and currency conversions (using the rates you enter) run inside the app on your phone.\n\nSpeech-to-text is performed by your phone's built-in speech service (for example Speech Services by Google). When the offline speech pack for your language is installed (Settings → Offline Speech), recognition happens fully on the device. Without it, your phone's speech service may use its own online recognition, governed by that provider's privacy policy.\n\n3. Sandboxed Storage\nYour calculation history and customized preferences remain strictly inside your phone's encrypted sandboxed storage and are never uploaded to any remote server or third party.\n\n4. Device Permissions\n• Microphone: Used solely for real-time speech input when you tap the mic. Audio streams are processed locally and discarded immediately after calculation.\n• Display Over Other Apps: Used exclusively for the optional Picture-in-Picture floating mini-calculator so you can calculate while multitasking.`}
                 </Text>
               </View>
             </ScrollView>
@@ -692,6 +846,30 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     letterSpacing: -0.3,
+  },
+  rateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  rateLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    width: 62,
+  },
+  rateInput: {
+    width: 104,
+    height: 40,
+    borderRadius: 10,
+    borderWidth: StyleSheet.hairlineWidth,
+    paddingHorizontal: 10,
+    fontSize: 15,
+    fontVariant: ['tabular-nums'],
+  },
+  rateCode: {
+    flex: 1,
+    fontSize: 13,
+    marginLeft: 10,
   },
   doneBtn: {
     paddingHorizontal: 18,

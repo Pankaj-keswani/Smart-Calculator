@@ -9,12 +9,16 @@ import {
 import { LocalizedStrings } from '../../localization/i18n';
 import { CalculationOutput, ConversationContext } from '../../models/types';
 import { ThemeColors } from '../../theme/theme';
+import { groupDigits, groupingForLanguage } from '../../utils/numberFormat';
+import { settingsService } from '../../services/SettingsService';
 import { triggerLightHaptic } from '../../utils/haptics';
 
 interface ResultDisplayProps {
   theme: ThemeColors;
   strings: LocalizedStrings;
   transcript: string;
+  /** Status line from the voice pipeline ("Didn't catch …", mic problems). */
+  notice?: string | null;
   output: CalculationOutput;
   context: ConversationContext;
   onResetContext: () => void;
@@ -25,6 +29,7 @@ export const ResultDisplay: React.FC<ResultDisplayProps> = ({
   theme,
   strings,
   transcript,
+  notice = null,
   output,
   context,
   onResetContext,
@@ -57,12 +62,12 @@ export const ResultDisplay: React.FC<ResultDisplayProps> = ({
     }
   };
 
+  const shownResult = groupDigits(
+    output.formattedResult,
+    groupingForLanguage(settingsService.getSettings().language)
+  );
   const resultFontSize =
-    output.formattedResult.length > 14
-      ? 34
-      : output.formattedResult.length > 9
-      ? 44
-      : 56;
+    shownResult.length > 14 ? 34 : shownResult.length > 9 ? 44 : 56;
 
   return (
     <View style={styles.container}>
@@ -80,7 +85,10 @@ export const ResultDisplay: React.FC<ResultDisplayProps> = ({
           <Text style={[styles.contextText, { color: theme.textSecondary }]}>
             {strings.contextActiveLabel}:{' '}
             <Text style={{ color: theme.textPrimary, fontWeight: '700' }}>
-              {context.lastFormattedResult || String(context.lastResult)}
+              {groupDigits(
+                context.lastFormattedResult || String(context.lastResult),
+                groupingForLanguage(settingsService.getSettings().language)
+              )}
             </Text>
           </Text>
           <TouchableOpacity
@@ -117,6 +125,13 @@ export const ResultDisplay: React.FC<ResultDisplayProps> = ({
             “{transcript}”
           </Text>
         </View>
+      ) : notice ? (
+        <Text
+          style={[styles.transcriptText, { color: theme.textMuted, textAlign: 'center', marginBottom: 8 }]}
+          numberOfLines={2}
+        >
+          {notice}
+        </Text>
       ) : null}
 
       {/* Main Large Result Display */}
@@ -134,9 +149,12 @@ export const ResultDisplay: React.FC<ResultDisplayProps> = ({
             },
           ]}
           selectable
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.4}
           accessibilityLabel={`Result: ${output.formattedResult}`}
         >
-          {output.formattedResult}
+          {shownResult}
         </Text>
 
         {/* Normalized Expression Subtitle */}

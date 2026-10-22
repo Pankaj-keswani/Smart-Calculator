@@ -1,0 +1,11 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+      VoiceCalc is 100% on-device. Release builds strip the INTERNET permission
+      (including any copy merged in from libraries), so Android itself guarantees
+      the app cannot send or receive network data.
+      Debug builds keep it because the Metro dev server needs it.
+    -->
+    <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
+</manifest>
