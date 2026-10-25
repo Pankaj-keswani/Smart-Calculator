@@ -1076,6 +1076,8 @@ export class JevCalculationEngine {
     return expr
       .replace(/\*/g, '×')
       .replace(/\//g, '÷')
+      .replace(/sqrt\(/g, '√(')
+      .replace(/cbrt\(/g, '∛(')
       .replace(/\s+/g, ' ')
       .trim();
   }

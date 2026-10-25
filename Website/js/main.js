@@ -264,14 +264,27 @@ document.addEventListener('DOMContentLoaded', () => {
   if (fbForm) {
     fbForm.addEventListener('submit', (e) => {
       e.preventDefault();
+      const msgEl = document.getElementById('fbMessage');
+      const emailEl = document.getElementById('fbEmail');
+      const message = msgEl ? msgEl.value.trim() : '';
+      if (!message) {
+        if (fbToastMsg) {
+          fbToastMsg.style.display = 'block';
+          fbToastMsg.textContent = 'Please write a short message first.';
+        }
+        if (msgEl) msgEl.focus();
+        return;
+      }
+      const activeChip = document.querySelector('.fb-topic-chip.active');
+      const topic = activeChip ? activeChip.textContent.replace(/[^\w\s]/g, '').trim() : 'Feedback';
+      const replyTo = emailEl && emailEl.value.trim() ? '\n\nReply to: ' + emailEl.value.trim() : '';
+      const body = 'Rating: ' + selectedRating + '/5\nTopic: ' + topic + '\n\n' + message + replyTo;
+      const subject = 'VoiceCalc AI feedback: ' + topic;
+      window.location.href = 'mailto:ourcanvasapp@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
       if (fbToastMsg) {
         fbToastMsg.style.display = 'block';
-        fbToastMsg.textContent = '🎉 Thank you! Your feedback has been noted.';
-        setTimeout(() => {
-          fbForm.reset();
-          fbToastMsg.style.display = 'none';
-          highlightStars(5);
-        }, 3500);
+        fbToastMsg.textContent = 'Your email app is opening with your message. Press send there to reach us.';
+        setTimeout(() => { fbToastMsg.style.display = 'none'; }, 6000);
       }
     });
   }

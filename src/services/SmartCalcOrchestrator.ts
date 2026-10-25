@@ -968,18 +968,23 @@ export class SmartCalcOrchestrator {
     }
 
     await new Promise<void>((resolve) => {
+      // Safety net: if the phone's text-to-speech never reports back (no voice
+      // installed, audio focus lost), don't leave the UI stuck on "Calculating…".
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        clearTimeout(safety);
+        callbacks?.onVoiceStateChange?.('idle');
+        resolve();
+      };
+      const safety = setTimeout(finish, Math.min(8000, 2500 + text.length * 90));
       void this.tts.speak(text, {
         onStart: () => {
-          callbacks?.onVoiceStateChange?.('speaking');
+          if (!finished) callbacks?.onVoiceStateChange?.('speaking');
         },
-        onDone: () => {
-          callbacks?.onVoiceStateChange?.('idle');
-          resolve();
-        },
-        onError: () => {
-          callbacks?.onVoiceStateChange?.('idle');
-          resolve();
-        },
+        onDone: finish,
+        onError: finish,
       });
     });
   }

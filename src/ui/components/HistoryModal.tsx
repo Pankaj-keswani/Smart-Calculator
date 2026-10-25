@@ -195,7 +195,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                         { color: theme.textSecondary },
                       ]}
                     >
-                      {(item.interpretedExpression || '').replace(/\*/g, '×').replace(/\//g, '÷')} =
+                      {(item.interpretedExpression || '').replace(/\*/g, '×').replace(/\//g, '÷').replace(/sqrt\(/g, '√(').replace(/cbrt\(/g, '∛(')} =
                     </Text>
                     <Text
                       style={[styles.resultText, { color: theme.textPrimary }]}

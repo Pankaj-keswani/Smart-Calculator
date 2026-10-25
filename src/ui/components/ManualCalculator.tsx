@@ -131,7 +131,7 @@ export const ManualCalculator: React.FC<ManualCalculatorProps> = ({
   // Display-only digit grouping (1,50,000 for Indian languages, 150,000 otherwise)
   const grouping = groupingForLanguage(settingsService.getSettings().language);
   const displayExpression = expression
-    ? groupDigits(expression.replace(/\*/g, '×').replace(/\//g, '÷'), grouping)
+    ? groupDigits(expression.replace(/\*/g, '×').replace(/\//g, '÷').replace(/sqrt\(/g, '√(').replace(/cbrt\(/g, '∛('), grouping)
     : '0';
 
   // Shrink long expressions step by step before falling back to sideways scrolling
@@ -768,7 +768,7 @@ export const ManualCalculator: React.FC<ManualCalculatorProps> = ({
                         { color: theme.textSecondary },
                       ]}
                     >
-                      {(item.interpretedExpression || '').replace(/\*/g, '×').replace(/\//g, '÷')} =
+                      {(item.interpretedExpression || '').replace(/\*/g, '×').replace(/\//g, '÷').replace(/sqrt\(/g, '√(').replace(/cbrt\(/g, '∛(')} =
                     </Text>
                     <Text
                       style={[
@@ -1550,15 +1550,19 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
   sciDrawer: {
+    // One even row on every phone width (it used to wrap "π" onto a 2nd line)
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
+    flexWrap: 'nowrap',
+    gap: 5,
     marginBottom: 10,
-    justifyContent: 'center',
+    paddingHorizontal: 4,
+    justifyContent: 'space-between',
   },
   sciPill: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: 0,
+    paddingVertical: 7,
     borderRadius: 16,
   },
   sciPillText: {

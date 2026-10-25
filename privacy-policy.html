@@ -121,96 +121,190 @@
     a:hover {
       text-decoration: underline;
     }
+    .data-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+    .data-table th, .data-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+    .data-table th { color: var(--accent); }
+    .table-wrap { overflow-x: auto; }
+    .policy-subtitle { color: var(--accent); font-size: 15px; margin: 14px 0 6px; }
+    .card a { color: var(--accent); }
   </style>
 </head>
 <body>
   <div class="container">
-    <header>
-      <span class="badge">100% ON-DEVICE & PRIVACY-FIRST</span>
+    <header class="header">
+      <span class="badge">DATA NOT COLLECTED &middot; ANDROID &amp; iOS</span>
       <h1>Privacy Policy for VoiceCalc AI</h1>
-      <p class="effective-date">Last Updated: October 14, 2026</p>
+      <p class="effective-date">Effective and last updated: October 26, 2026</p>
     </header>
 
-    <div class="card">
-      <h2>1. Overview & Core Privacy Promise</h2>
-      <p>
-        <strong>VoiceCalc AI</strong> is engineered from the ground up with a strict privacy-by-design architecture. We believe that your daily numbers, personal finances, budget calculations, and spoken voice commands belong solely to you.
-      </p>
-      <div class="highlight-box">
-        <strong>Zero Data Collection Guarantee:</strong> VoiceCalc AI does not collect, log, track, sell, or transmit any user data, calculation records, or audio recordings to external cloud servers. All computations run 100% locally on your device.
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>2. Device Permissions & Why They Are Needed</h2>
-      <p>To provide hands-free voice calculation and multi-tasking overlay features, VoiceCalc AI requests the following explicit Android device permissions:</p>
-      
+    <article class="card" id="s1">
+      <h2>1. Summary</h2>
+      <div class="highlight-box"><strong>VoiceCalc AI does not collect any personal data.</strong> We, the developer, do not receive, store, sell or share your information. There is no account, no advertising, no analytics, no tracking and no AI or cloud service. Your calculations, history and settings stay on your device.</div>
       <ul>
-        <li>
-          <strong>Microphone (`RECORD_AUDIO`):</strong>
-          Used exclusively when you activate voice calculation to convert spoken words into mathematical operations in real time.
-          <br>
-          <em>How it is handled:</em> Audio is processed in memory on your device using Android's system speech recognizer. We <strong>never</strong> save audio files to permanent storage, and we <strong>never</strong> upload your voice to any remote server or third-party cloud.
-        </li>
-        <li>
-          <strong>Display Over Other Apps (`SYSTEM_ALERT_WINDOW`):</strong>
-          Used solely to enable the optional <em>Floating Overlay Mode</em>, allowing a compact calculator bubble to float over applications like WhatsApp, Amazon, or Excel.
-          <br>
-          <em>How it is handled:</em> This permission is used solely to render the calculator window on your screen. The app does <strong>not</strong> read, capture, screenshot, or inspect any content from the underlying applications.
-        </li>
-        <li>
-          <strong>Vibration (`VIBRATE`):</strong>
-          Used to deliver crisp, hardware-accelerated tactile haptic feedback on keypad button presses.
-        </li>
+        <li>No sign-up, login or account.</li>
+        <li>No ads, no advertising ID, no tracking across apps or websites.</li>
+        <li>No analytics, crash-reporting, advertising or AI/cloud SDKs inside the app.</li>
+        <li>The app does not send your data over the internet. Android release versions do not even include the Internet permission.</li>
+        <li>Voice is turned into text by your phone's own speech service. See section 5 for exactly how.</li>
       </ul>
-    </div>
+    </article>
 
-    <div class="card">
-      <h2>3. Calculation Data & Local Storage</h2>
-      <p>
-        All calculations, variables, formulas, and history entries are saved strictly within your device's private sandboxed application storage (`AsyncStorage`).
-      </p>
+    <article class="card" id="s2">
+      <h2>2. Who we are and what this policy covers</h2>
+      <p>This policy applies to the <strong>VoiceCalc AI: Smart Calculator</strong> app for Android (Google Play, app ID <code>com.voicecalcai.app</code>) and iOS (App Store, bundle ID <code>app.voicecalcai</code>). That includes its Android home-screen widget, Quick Settings tile and floating calculator. It also applies to the website <a href="https://voicecalcai.pages.dev">voicecalcai.pages.dev</a>.</p>
+      <p>&ldquo;We&rdquo;, &ldquo;us&rdquo; and &ldquo;our&rdquo; mean the developer of VoiceCalc AI. Contact details are in section 17.</p>
+    </article>
+
+    <article class="card" id="s3">
+      <h2>3. Information we collect</h2>
+      <p><strong>None.</strong> The table below lists every kind of data and where it stays.</p>
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Type of data</th><th>Collected by us?</th><th>Shared?</th><th>Where it stays</th></tr></thead><tbody>
+        <tr><td data-label="Type of data"><span class="cell">Name, email, phone number, address</span></td><td data-label="Collected by us?"><span class="cell">No</span></td><td data-label="Shared?"><span class="cell">No</span></td><td data-label="Where it stays"><span class="cell">Never requested</span></td></tr>
+        <tr><td data-label="Type of data"><span class="cell">Account or login details</span></td><td data-label="Collected by us?"><span class="cell">No</span></td><td data-label="Shared?"><span class="cell">No</span></td><td data-label="Where it stays"><span class="cell">The app has no accounts</span></td></tr>
+        <tr><td data-label="Type of data"><span class="cell">Voice audio</span></td><td data-label="Collected by us?"><span class="cell">No</span></td><td data-label="Shared?"><span class="cell">No</span></td><td data-label="Where it stays"><span class="cell">Handled by your phone's speech service while the mic is on. The app never saves audio.</span></td></tr>
+        <tr><td data-label="Type of data"><span class="cell">Text of what you say or type</span></td><td data-label="Collected by us?"><span class="cell">No</span></td><td data-label="Shared?"><span class="cell">No</span></td><td data-label="Where it stays"><span class="cell">Saved on your device in History. You can delete it.</span></td></tr>
+        <tr><td data-label="Type of data"><span class="cell">Calculations and results</span></td><td data-label="Collected by us?"><span class="cell">No</span></td><td data-label="Shared?"><span class="cell">No</span></td><td data-label="Where it stays"><span class="cell">On your device only</span></td></tr>
+        <tr><td data-label="Type of data"><span class="cell">Settings and exchange rates you enter</span></td><td data-label="Collected by us?"><span class="cell">No</span></td><td data-label="Shared?"><span class="cell">No</span></td><td data-label="Where it stays"><span class="cell">On your device only</span></td></tr>
+        <tr><td data-label="Type of data"><span class="cell">Location</span></td><td data-label="Collected by us?"><span class="cell">No</span></td><td data-label="Shared?"><span class="cell">No</span></td><td data-label="Where it stays"><span class="cell">Never accessed</span></td></tr>
+        <tr><td data-label="Type of data"><span class="cell">Contacts, photos, files, messages, calendar</span></td><td data-label="Collected by us?"><span class="cell">No</span></td><td data-label="Shared?"><span class="cell">No</span></td><td data-label="Where it stays"><span class="cell">Never accessed</span></td></tr>
+        <tr><td data-label="Type of data"><span class="cell">Device IDs or advertising ID</span></td><td data-label="Collected by us?"><span class="cell">No</span></td><td data-label="Shared?"><span class="cell">No</span></td><td data-label="Where it stays"><span class="cell">Never accessed</span></td></tr>
+        <tr><td data-label="Type of data"><span class="cell">Usage analytics, diagnostics, crash logs</span></td><td data-label="Collected by us?"><span class="cell">No</span></td><td data-label="Shared?"><span class="cell">No</span></td><td data-label="Where it stays"><span class="cell">No analytics or crash SDKs (see section 9)</span></td></tr>
+        <tr><td data-label="Type of data"><span class="cell">Payment information</span></td><td data-label="Collected by us?"><span class="cell">No</span></td><td data-label="Shared?"><span class="cell">No</span></td><td data-label="Where it stays"><span class="cell">The app is free, with no in-app purchases</span></td></tr>
+        </tbody></table></div>
+      <p>For this reason our App Store privacy label is <strong>&ldquo;Data Not Collected&rdquo;</strong>, and our Google Play Data safety section states that <strong>no data is collected or shared</strong>.</p>
+    </article>
+
+    <article class="card" id="s4">
+      <h2>4. Information stored only on your device</h2>
+      <p>To work as a calculator, the app keeps the following in its private storage on your phone:</p>
       <ul>
-        <li>No user account or registration is required to use the app.</li>
-        <li>Your calculation history is never synced to the cloud.</li>
-        <li>You can permanently wipe your calculation history at any time with a single tap using the "Clear All History" button in the app.</li>
+        <li><strong>Calculation history:</strong> each expression, its result, the words you spoke or typed, whether it came from voice or the keypad, and the time. Only the 200 most recent entries are kept.</li>
+        <li><strong>Settings:</strong> theme, accent colour, sounds, haptics, language, speech rate and voice.</li>
+        <li><strong>Exchange rates</strong> you type in for offline currency conversion.</li>
+        <li><strong>The last result</strong> shown on the Android home-screen widget.</li>
       </ul>
-    </div>
+      <p>This data lives in the app's sandbox, which other apps cannot read. It never reaches us, and we cannot access it.</p>
+      <p><strong>How long it is kept:</strong> until you delete it. You can delete one entry or tap <em>Clear All</em> in History. You can also clear the app's storage in Android Settings, or uninstall the app.</p>
+      <p><strong>Device backups:</strong> if you have turned on Android device backup (Google) or iCloud Backup, your phone may include this app data in <em>your own</em> backup. Google or Apple manage that backup under your account, and we have no access to it. You can turn backups off in your device settings.</p>
+    </article>
 
-    <div class="card">
-      <h2>4. Third-Party Services & Tracking</h2>
-      <p>
-        VoiceCalc AI contains <strong>NO</strong> third-party analytics SDKs, <strong>NO</strong> advertising trackers, <strong>NO</strong> behavioral telemetry trackers, and <strong>NO</strong> data brokers. We do not track your location, your device identifiers, or your usage habits.
-      </p>
-    </div>
+    <article class="card" id="s5">
+      <h2>5. Microphone, speech recognition and spoken answers</h2>
+      <ul>
+        <li>The microphone is used <strong>only after you turn voice on</strong>: with the mic button, the widget's voice button or the Quick Settings tile. Your phone shows its usual microphone-in-use indicator. Voice switches off automatically after about 15 seconds of silence, or when you tap the mic again.</li>
+        <li>Speech is turned into text by your phone's <strong>built-in speech recognition service</strong>. On Android this is the system speech service, usually Speech Services by Google. On iPhone it is Apple's Speech framework.</li>
+        <li><strong>On-device when available:</strong> on Android 13 or later with the offline language pack installed (in the app: Settings &rarr; Offline Speech), recognition happens entirely on your phone. Older Android versions use the offline voice-typing pack if you have installed it. On iPhone, iOS uses on-device recognition when it supports your language.</li>
+        <li>If on-device recognition is not available, your phone's speech provider may process the audio on its own servers. That processing is covered by the provider's privacy policy: <a href="https://policies.google.com/privacy">Google Privacy Policy</a> or <a href="https://www.apple.com/legal/privacy/">Apple Privacy Policy</a>. We do not receive the audio or the text.</li>
+        <li>The app only receives the resulting text. It works out the calculation on your phone and <strong>never records or stores audio</strong>.</li>
+        <li>Spoken answers use your phone's built-in text-to-speech engine. You can turn them off in Settings.</li>
+      </ul>
+    </article>
 
-    <div class="card">
-      <h2>5. Children's Privacy (COPPA Compliance)</h2>
-      <p>
-        VoiceCalc AI is completely safe for all audiences and does not collect any personal information from children under 13 years of age (or any age).
-      </p>
-    </div>
+    <article class="card" id="s6">
+      <h2>6. Permissions</h2>
+      <h3 class="policy-subtitle">Android</h3>
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Permission</th><th>Why it is needed</th><th>When it is used</th></tr></thead><tbody>
+        <tr><td data-label="Permission"><span class="cell">Microphone (<code>RECORD_AUDIO</code>)</span></td><td data-label="Why it is needed"><span class="cell">Voice calculations</span></td><td data-label="When it is used"><span class="cell">Only while voice is on</span></td></tr>
+        <tr><td data-label="Permission"><span class="cell">Display over other apps (<code>SYSTEM_ALERT_WINDOW</code>)</span></td><td data-label="Why it is needed"><span class="cell">Optional floating calculator bubble</span></td><td data-label="When it is used"><span class="cell">Only if you start the bubble and grant this permission</span></td></tr>
+        <tr><td data-label="Permission"><span class="cell">Notifications (<code>POST_NOTIFICATIONS</code>)</span></td><td data-label="Why it is needed"><span class="cell">Android requires a notification while the floating calculator is running</span></td><td data-label="When it is used"><span class="cell">Only while the bubble is open</span></td></tr>
+        <tr><td data-label="Permission"><span class="cell">Vibration (<code>VIBRATE</code>)</span></td><td data-label="Why it is needed"><span class="cell">Key-press haptic feedback</span></td><td data-label="When it is used"><span class="cell">On key presses. Can be turned off in Settings.</span></td></tr>
+        </tbody></table></div>
+      <h3 class="policy-subtitle">iPhone</h3>
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Permission</th><th>Why it is needed</th><th>When it is used</th></tr></thead><tbody>
+        <tr><td data-label="Permission"><span class="cell">Microphone</span></td><td data-label="Why it is needed"><span class="cell">Voice calculations</span></td><td data-label="When it is used"><span class="cell">Only while voice is on</span></td></tr>
+        <tr><td data-label="Permission"><span class="cell">Speech Recognition</span></td><td data-label="Why it is needed"><span class="cell">Lets iOS turn your voice into text</span></td><td data-label="When it is used"><span class="cell">Only while voice is on</span></td></tr>
+        </tbody></table></div>
+      <p>The app does <strong>not</strong> request location, contacts, camera, photos, files or storage, phone or SMS. You can revoke any permission at any time in your device settings. The related feature will stop, but the calculator keeps working.</p>
+    </article>
 
-    <div class="card">
-      <h2>6. Data Security</h2>
-      <p>
-        Because all processing occurs strictly within the local Android OS sandbox without outbound network communication for calculations, your financial and computational data is naturally protected against interception, man-in-the-middle attacks, and remote server leaks.
-      </p>
-    </div>
+    <article class="card" id="s7">
+      <h2>7. Clipboard, sharing, widget and floating calculator</h2>
+      <ul>
+        <li><strong>Copy:</strong> the app writes a result to your clipboard only when you tap Copy or say &ldquo;copy&rdquo;. It <strong>never reads</strong> your clipboard.</li>
+        <li><strong>Share:</strong> opens your phone's share sheet with the calculation text. You choose where it goes, and we don't see it.</li>
+        <li><strong>Widget and Quick Settings tile (Android):</strong> show your last result and open the app. Nothing leaves your device.</li>
+        <li><strong>Floating calculator (Android):</strong> draws its own small window. It cannot see, read or record what other apps show.</li>
+      </ul>
+    </article>
 
-    <div class="card">
-      <h2>7. Contact & Inquiries</h2>
-      <p>
-        If you have any questions, suggestions, or concerns regarding this Privacy Policy or VoiceCalc AI, please contact the developer team at:
-      </p>
-      <p>
-        <strong>Email:</strong> <a href="mailto:support@smartcalc.ai">support@smartcalc.ai</a>
-      </p>
-    </div>
+    <article class="card" id="s8">
+      <h2>8. Internet and network use</h2>
+      <ul>
+        <li>The app does not need the internet. It has no servers, accounts or cloud processing.</li>
+        <li>Currency conversion uses only the exchange rates you type in. The app never downloads rates.</li>
+        <li>Android release versions do not include the Internet permission, so Android itself blocks the app from using the network.</li>
+        <li>The iPhone app makes no network requests of its own. System services you choose to use, such as Apple speech recognition, work as described in section 5.</li>
+        <li>App updates are delivered by Google Play or the App Store.</li>
+      </ul>
+    </article>
 
-    <footer>
-      <p>&copy; 2026 VoiceCalc AI. Built with local on-device intelligence. All rights reserved.</p>
-    </footer>
+    <article class="card" id="s9">
+      <h2>9. Third parties</h2>
+      <ul>
+        <li>The app contains <strong>no third-party SDKs</strong> for advertising, analytics, attribution, crash reporting or AI.</li>
+        <li><strong>Apple and Google</strong> distribute the app. If you have allowed it in your device settings (for example &ldquo;Share with App Developers&rdquo; on iPhone or &ldquo;Usage &amp; diagnostics&rdquo; on Android), they may give us anonymous, combined statistics such as install counts and crash reports. These do not identify you, and we use them only to fix bugs and improve the app.</li>
+        <li>Speech recognition providers are described in section 5.</li>
+        <li>We do <strong>not sell or share</strong> personal information (including as defined by the California Consumer Privacy Act), and we do not use any data for targeted advertising.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="s10">
+      <h2>10. Children&#x27;s privacy</h2>
+      <p>VoiceCalc AI is suitable for all ages. It collects no personal information from anyone, including children under 13 (or the minimum age in your country, such as 16 in parts of the EU or 18 under India's DPDP Act). It has no ads, no chat, no sign-in and no links to buy anything.</p>
+    </article>
+
+    <article class="card" id="s11">
+      <h2>11. Your rights and choices</h2>
+      <p>Privacy laws such as the EU and UK GDPR, India's Digital Personal Data Protection Act 2023, and the California Consumer Privacy Act give you rights over your personal data. These include the right to access, correct, delete or port your data, to object to or restrict its use, to withdraw consent, and to complain to a data protection authority.</p>
+      <p>Because we do not collect or hold any personal data, there is nothing for us to provide or delete. Everything is on your device and under your control:</p>
+      <ul>
+        <li>Delete history entries, or tap <em>Clear All</em>.</li>
+        <li>Turn off voice, spoken answers or haptics in Settings.</li>
+        <li>Revoke the microphone, speech or overlay permission in your device settings.</li>
+        <li>Uninstall the app to remove all of its data.</li>
+      </ul>
+      <p>If you have any privacy question or request, email us at <a href="mailto:ourcanvasapp@gmail.com">ourcanvasapp@gmail.com</a>. We reply within 30 days.</p>
+    </article>
+
+    <article class="card" id="s12">
+      <h2>12. Data deletion</h2>
+      <p>There is no account and no server-side data, so there is nothing for you to ask us to delete. To remove all app data from your device, tap <em>Clear All</em> in History and reset Settings, clear the app's storage in Android Settings &rarr; Apps &rarr; VoiceCalc AI &rarr; Storage, or uninstall the app.</p>
+    </article>
+
+    <article class="card" id="s13">
+      <h2>13. Security</h2>
+      <p>Your data is kept in the operating system's private app sandbox and is protected by your phone's lock screen and built-in encryption. The app never transmits your data, so there is no server or transfer that could leak. Please keep your device and its backups secure.</p>
+    </article>
+
+    <article class="card" id="s14">
+      <h2>14. International transfers</h2>
+      <p>We do not transfer any personal data, because we do not receive any. If your phone's speech provider processes audio on its servers (section 5), that provider may do so in other countries, under its own privacy policy.</p>
+    </article>
+
+    <article class="card" id="s15">
+      <h2>15. This website</h2>
+      <p>The website <a href="https://voicecalcai.pages.dev">voicecalcai.pages.dev</a> is hosted on Cloudflare Pages. Like any web host, Cloudflare may process technical data such as your IP address and browser type to deliver and protect the site (<a href="https://www.cloudflare.com/privacypolicy/">Cloudflare Privacy Policy</a>). The site loads fonts from Google Fonts, which means your browser contacts Google's servers (<a href="https://policies.google.com/privacy">Google Privacy Policy</a>).</p>
+      <p>The website uses no cookies, analytics or advertising. Its feedback form sends nothing by itself: it only opens your own email app with your message filled in, and nothing reaches us unless you press send there. To reach us, please email <a href="mailto:ourcanvasapp@gmail.com">ourcanvasapp@gmail.com</a>.</p>
+    </article>
+
+    <article class="card" id="s16">
+      <h2>16. Changes to this policy</h2>
+      <p>If our practices or the app change, we will update this page and the &ldquo;Last updated&rdquo; date above. We will also mention significant changes in the app's update notes. Using the app after an update means the updated policy applies.</p>
+    </article>
+
+    <article class="card" id="s17">
+      <h2>17. Contact</h2>
+      <p>Questions or concerns about privacy? Contact the developer of VoiceCalc AI:</p>
+      <ul>
+        <li><strong>Email:</strong> <a href="mailto:ourcanvasapp@gmail.com">ourcanvasapp@gmail.com</a></li>
+        <li><strong>Website:</strong> <a href="https://voicecalcai.pages.dev">voicecalcai.pages.dev</a></li>
+        <li><strong>App:</strong> VoiceCalc AI: Smart Calculator, Android <code>com.voicecalcai.app</code> and iOS <code>app.voicecalcai</code></li>
+      </ul>
+    </article>
+    <p class="footer">&copy; 2026 VoiceCalc AI. Works entirely on your device.</p>
   </div>
 </body>
 </html>

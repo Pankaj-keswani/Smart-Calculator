@@ -14,12 +14,16 @@
       "backgroundColor": "#0F0F0F"
     },
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.voicecalcai.app",
+      "supportsTablet": false,
+      "bundleIdentifier": "app.voicecalcai",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "VoiceCalc AI uses the microphone to listen to your natural-language voice calculations.",
-        "NSSpeechRecognitionUsageDescription": "VoiceCalc AI converts your spoken math questions into text so it can calculate the answer."
-      }
+        "NSSpeechRecognitionUsageDescription": "VoiceCalc AI converts your spoken math questions into text.",
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "VoiceCalc AI does not use your photos and never asks for access. iOS requires this description because a built-in Expo file component can read photo files.",
+        "NSPhotoLibraryAddUsageDescription": "VoiceCalc AI does not save to your photos and never asks for access. iOS requires this description because a built-in Expo file component supports it."
+      },
+      "buildNumber": "1"
     },
     "android": {
       "package": "com.voicecalcai.app",
@@ -38,6 +42,12 @@
           "speechRecognitionPermission": "VoiceCalc AI converts your spoken math questions into text."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "d42be5fc-6754-470c-beb3-47631589c724"
+      }
+    },
+    "owner": "th3ons-team"
   }
 }

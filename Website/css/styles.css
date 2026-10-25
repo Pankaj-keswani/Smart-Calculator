@@ -2030,3 +2030,21 @@ body {
     display: flex;
   }
 }
+
+/* Phones: keep store buttons and the download card inside the screen */
+@media (max-width: 600px) {
+  .download-card {
+    padding: 36px 20px;
+  }
+  .download-card > * {
+    min-width: 0;
+  }
+  .download-title {
+    font-size: 30px;
+  }
+  .download-btns-row .btn,
+  .hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
