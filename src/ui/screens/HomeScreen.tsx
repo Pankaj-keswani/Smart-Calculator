@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  AppState,
   KeyboardAvoidingView,
   Linking,
   Platform,
@@ -10,6 +11,13 @@ import {
   View,
 } from 'react-native';
 import { launchFloatingCalculator } from '../../utils/floatingOverlay';
+import {
+  clearLastResult,
+  parseDeepLink,
+  publishLastResult,
+  takePendingAction,
+} from '../../utils/appleWidgets';
+import { groupDigits, groupingForLanguage } from '../../utils/numberFormat';
 import { getStrings } from '../../localization/i18n';
 import {
   AppMode,
@@ -62,10 +70,15 @@ export const HomeScreen: React.FC = () => {
   const [reuseVersion, setReuseVersion] = useState<number>(0);
   const [showStartingAnim, setShowStartingAnim] = useState<boolean>(true);
 
+  const historyLoadedRef = useRef(false);
+
   // Load persisted settings and history on mount
   useEffect(() => {
     void settingsService.load().then(setSettings);
-    void historyService.load().then(setHistoryItems);
+    void historyService.load().then((items) => {
+      historyLoadedRef.current = true;
+      setHistoryItems(items);
+    });
 
     const unsubSettings = settingsService.subscribe(setSettings);
     const unsubHistory = historyService.subscribe(setHistoryItems);
@@ -119,20 +132,56 @@ export const HomeScreen: React.FC = () => {
   // Registered ONCE: re-running this effect on every voice-state change used to
   // re-read the same initial "smartcalc://voice" URL and toggle the mic off/on.
   useEffect(() => {
+    const startListening = () => {
+      setMode('voice');
+      setTimeout(() => {
+        // Start listening (never toggle off) when launched from widget / tile / Siri
+        if (voiceStateRef.current === 'idle') {
+          void smartCalcOrchestrator.startVoiceSession(orchestratorCallbacks);
+        }
+      }, 350);
+    };
+
+    const calculate = (query: string) => {
+      setMode('voice');
+      setTimeout(() => {
+        void smartCalcOrchestrator.processCommand(query, orchestratorCallbacks);
+      }, 350);
+    };
+
     const handleUrl = (url: string | null) => {
       if (!url) return;
-      if (url.includes('voice')) {
-        setMode('voice');
-        setTimeout(() => {
-          // Start listening (never toggle off) when launched from widget / tile
-          if (voiceStateRef.current === 'idle') {
-            void smartCalcOrchestrator.startVoiceSession(orchestratorCallbacks);
-          }
-        }, 350);
-      } else if (url.includes('history')) {
+      const link = parseDeepLink(url);
+      if (link?.action === 'calc') {
+        calculate(link.query);
+      } else if (link?.action === 'keypad') {
+        setMode('calculator');
+      } else if (link?.action === 'voice' || (!link && url.includes('voice'))) {
+        startListening();
+      } else if (link?.action === 'history' || (!link && url.includes('history'))) {
         setHistoryModalVisible(true);
       }
     };
+
+    // iPhone: Siri, Shortcuts, the Action button and Control Center leave an action
+    // in the shared App Group (targets/widget/SharedIntents.swift). The intent may
+    // finish just before or just after the app comes to the front, so check a few times.
+    const pendingTimers: ReturnType<typeof setTimeout>[] = [];
+    const checkPendingAction = () => {
+      const pending = takePendingAction();
+      if (!pending) return;
+      if (pending.action === 'calc') calculate(pending.query);
+      else startListening();
+    };
+    const schedulePendingChecks = () => {
+      for (const delay of [0, 600, 1500, 3000]) {
+        pendingTimers.push(setTimeout(checkPendingAction, delay));
+      }
+    };
+    schedulePendingChecks();
+    const appStateSub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') schedulePendingChecks();
+    });
 
     void Linking.getInitialURL().then((url) => {
       if (initialUrlHandledRef.current) return;
@@ -142,9 +191,31 @@ export const HomeScreen: React.FC = () => {
     const sub = Linking.addEventListener('url', (event) => handleUrl(event.url));
     return () => {
       sub.remove();
+      appStateSub.remove();
+      pendingTimers.forEach(clearTimeout);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // iPhone home screen / lock screen widget shows the latest answer.
+  const latestHistoryItem = historyItems[0];
+  useEffect(() => {
+    if (Platform.OS !== 'ios' || !historyLoadedRef.current) return;
+    if (!latestHistoryItem) {
+      clearLastResult();
+      return;
+    }
+    const grouping = groupingForLanguage(settings.language);
+    const expression = (latestHistoryItem.interpretedExpression || '')
+      .replace(/\*/g, '×')
+      .replace(/\//g, '÷')
+      .replace(/sqrt\(/g, '√(')
+      .replace(/cbrt\(/g, '∛(');
+    publishLastResult(
+      groupDigits(expression, grouping),
+      groupDigits(latestHistoryItem.result, grouping)
+    );
+  }, [latestHistoryItem, settings.language]);
 
   const handleNaturalCommandSubmit = useCallback(async (cmd: string) => {
     await smartCalcOrchestrator.processCommand(cmd, orchestratorCallbacks);

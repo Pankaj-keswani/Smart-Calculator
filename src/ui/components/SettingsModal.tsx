@@ -685,6 +685,53 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </>
           )}
 
+          {/* 5b. iPHONE QUICK ACCESS: widget, Control Center, Siri, Action button */}
+          {Platform.OS === 'ios' && (
+            <>
+              <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+                QUICK ACCESS
+              </Text>
+              <View
+                style={[
+                  styles.card,
+                  { backgroundColor: theme.surface, borderColor: theme.border },
+                ]}
+              >
+                {[
+                  {
+                    title: 'Home Screen & Lock Screen Widget',
+                    body: 'Touch and hold your Home Screen or Lock Screen, tap Edit, then add “VoiceCalc AI”. It shows your last answer; tap it to speak.',
+                  },
+                  {
+                    title: 'Control Center Mic',
+                    body: 'Open Control Center, tap +, and add “VoiceCalc Mic” to start a voice calculation from anywhere.',
+                  },
+                  {
+                    title: 'Siri & Action Button',
+                    body: 'Say “Hey Siri, calculate with VoiceCalc AI”, then your sum. You can also set the Action button to “Speak a Calculation” in Settings → Action Button → Shortcut.',
+                  },
+                ].map((tip, index) => (
+                  <View key={tip.title}>
+                    {index > 0 && (
+                      <View
+                        style={[
+                          styles.divider,
+                          { backgroundColor: theme.border, marginVertical: 14 },
+                        ]}
+                      />
+                    )}
+                    <Text style={[styles.fieldLabel, { color: theme.textPrimary, marginBottom: 2 }]}>
+                      {tip.title}
+                    </Text>
+                    <Text style={[styles.subLabel, { color: theme.textSecondary, lineHeight: 17 }]}>
+                      {tip.body}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </>
+          )}
+
           {/* 5. PRIVACY & LOCAL PROCESSING */}
           <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>
             PRIVACY & SECURITY

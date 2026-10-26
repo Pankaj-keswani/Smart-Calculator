@@ -2,6 +2,7 @@
   "expo": {
     "name": "VoiceCalc AI: Smart Calculator",
     "slug": "voicecalc-ai",
+    "scheme": "smartcalc",
     "version": "1.1",
     "icon": "./assets/icon.png",
     "sdkVersion": "57.0.0",
@@ -21,9 +22,24 @@
         "NSSpeechRecognitionUsageDescription": "VoiceCalc AI converts your spoken math questions into text.",
         "ITSAppUsesNonExemptEncryption": false,
         "NSPhotoLibraryUsageDescription": "VoiceCalc AI does not use your photos and never asks for access. iOS requires this description because a built-in Expo file component can read photo files.",
-        "NSPhotoLibraryAddUsageDescription": "VoiceCalc AI does not save to your photos and never asks for access. iOS requires this description because a built-in Expo file component supports it."
+        "NSPhotoLibraryAddUsageDescription": "VoiceCalc AI does not save to your photos and never asks for access. iOS requires this description because a built-in Expo file component supports it.",
+        "CFBundleDisplayName": "VoiceCalc AI",
+        "INAlternativeAppNames": [
+          {
+            "INAlternativeAppName": "VoiceCalc"
+          },
+          {
+            "INAlternativeAppName": "Voice Calc"
+          }
+        ]
       },
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "appleTeamId": "762G2AK44A",
+      "entitlements": {
+        "com.apple.security.application-groups": [
+          "group.app.voicecalcai"
+        ]
+      }
     },
     "android": {
       "package": "com.voicecalcai.app",
@@ -41,7 +57,9 @@
           "microphonePermission": "VoiceCalc AI uses the microphone to listen to your natural-language voice calculations.",
           "speechRecognitionPermission": "VoiceCalc AI converts your spoken math questions into text."
         }
-      ]
+      ],
+      "@bacons/apple-targets",
+      "./plugins/withVoiceCalcAppIntents"
     ],
     "extra": {
       "eas": {
