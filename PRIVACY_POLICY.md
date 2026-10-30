@@ -1,7 +1,7 @@
 # Privacy Policy for VoiceCalc AI
 
 **App:** VoiceCalc AI: Smart Calculator · Android `com.voicecalcai.app` · iOS `app.voicecalcai`  
-**Effective and last updated:** October 26, 2026
+**Effective and last updated:** October 30, 2026
 
 ---
 
@@ -139,6 +139,8 @@ We do not transfer any personal data, because we do not receive any. If your pho
 ## 15. This website
 
 The website [voicecalcai.pages.dev](https://voicecalcai.pages.dev) is hosted on Cloudflare Pages. Like any web host, Cloudflare may process technical data such as your IP address and browser type to deliver and protect the site ([Cloudflare Privacy Policy](https://www.cloudflare.com/privacypolicy/)). The site loads fonts from Google Fonts, which means your browser contacts Google's servers ([Google Privacy Policy](https://policies.google.com/privacy)).
+
+The live demo on the website runs the VoiceCalc AI calculation engine inside your browser. What you type is calculated on the page and is not sent to us or stored. If you tap the demo's microphone, your browser's own speech recognition turns your speech into text: in Google Chrome and Microsoft Edge the audio is sent to Google or Microsoft for recognition, and in Safari to Apple, under their privacy policies ([Google](https://policies.google.com/privacy), [Microsoft](https://privacy.microsoft.com/privacystatement), [Apple](https://www.apple.com/legal/privacy/)). Your browser asks for microphone permission first, and the demo works fully by typing if you prefer. The promotional videos are served from the website itself.
 
 The website uses no cookies, analytics or advertising. Its feedback form sends nothing by itself: it only opens your own email app with your message filled in, and nothing reaches us unless you press send there. To reach us, please email [ourcanvasapp@gmail.com](mailto:ourcanvasapp@gmail.com).
 

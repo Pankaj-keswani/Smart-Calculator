@@ -20,10 +20,11 @@
   <!-- Google Fonts: Outfit & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Devanagari:wght@600&display=swap" rel="stylesheet">
 
   <!-- Stylesheet -->
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/fx.css">
 
   <script type="application/ld+json">
   {
@@ -38,6 +39,7 @@
   </script>
 </head>
 <body>
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
   <a class="skip-link" href="#main">Skip to content</a>
 
   <!-- Ambient background glow blurs -->
@@ -60,12 +62,11 @@
 
       <nav class="nav-links" aria-label="Primary Navigation">
         <a href="#features">Features</a>
-        <a href="#voice-ai">Voice AI</a>
+        <a href="#voice-ai">Live Demo</a>
+        <a href="#see-it">Videos</a>
         <a href="#floating-pip">Floating PiP</a>
         <a href="#widget">Widget</a>
-        <a href="#scientific">Scientific</a>
         <a href="#faq">FAQ</a>
-        <a href="privacy-policy.html">Privacy Policy</a>
       </nav>
 
       <div class="nav-actions">
@@ -86,7 +87,8 @@
     <!-- Mobile Slide Menu -->
     <div class="mobile-menu" id="mobileMenu" hidden>
       <a href="#features">Features</a>
-      <a href="#voice-ai">Voice AI Recognition</a>
+      <a href="#voice-ai">Live Demo: try the real engine</a>
+      <a href="#see-it">Watch it in action</a>
       <a href="#floating-pip">Floating Picture-in-Picture</a>
       <a href="#widget">Home Screen Widget</a>
       <a href="#scientific">Scientific Calculator</a>
@@ -110,6 +112,7 @@
 
     <!-- ══════════════════════ HERO SECTION ══════════════════════ -->
     <section class="hero">
+      <canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas>
       <div class="container hero-grid">
         <div class="hero-copy">
           <div class="pill-badge">
@@ -170,7 +173,7 @@
             </div>
           </div>
 
-          <div class="phone-mockup">
+          <div class="phone-mockup" data-tilt="7">
             <!-- Top Status Bar -->
             <div class="phone-notch-bar">
               <span>9:41</span>
@@ -290,94 +293,119 @@
       </div>
     </section>
 
-    <!-- ══════════════════════ FEATURE 1: VOICE AI SHOWCASE ══════════════════════ -->
+    <!-- ══════════════════════ FEATURE 1: LIVE DEMO (real engine) ══════════════════════ -->
     <section class="section section-alt" id="voice-ai">
       <div class="container">
         <div class="section-head reveal">
-          <span class="section-tag">Spoken AI Intelligence</span>
-          <h2 class="section-title">Speak Math Naturally. <span class="grad-text">We Filter the Rest.</span></h2>
+          <span class="section-tag">Try it right here</span>
+          <h2 class="section-title split-reveal">Talk to it like a person. <span class="grad-text">Get the real answer.</span></h2>
           <p class="section-desc">
-            No robotic syntax required. Talk the way you naturally speak in real life. VoiceCalc AI's on-device natural language pipeline strips greetings, conversational fillers, and computes your answer instantaneously.
+            This demo runs the actual VoiceCalc AI calculation engine, built from the app's own code, right in your browser. Type or say a sum the way you'd say it out loud.
           </p>
         </div>
 
-        <div class="voice-showcase-grid">
-          <div class="voice-copy reveal">
-            <h3 style="font-size:24px; font-weight:800; color:#fff;">Automatic Conversational Noise Stripping</h3>
-            <p style="color:var(--text-muted); font-size:15px; line-height:1.6;">
-              Saying <em>"Hey bro, can you please calculate 15% discount on 2400 plus 350 shipping"</em>?
-              VoiceCalc AI automatically strips away greetings like <em>"hey"</em>, <em>"bro"</em>, <em>"please calculate"</em>, translates the numbers into <code>(15% × 2400) + 350</code>, and hands you the result in milliseconds.
-            </p>
-
+        <div class="live-grid">
+          <div class="live-copy reveal">
+            <h3>Say it however it comes out</h3>
             <ul class="feature-tick-list">
-              <li class="feature-tick-item">
-                <span class="tick-icon">✓</span>
-                <div><strong>Smart Silence Detection:</strong> Automatically wraps up and evaluates after 3.5 seconds of silence — no awkward button hunting.</div>
-              </li>
-              <li class="feature-tick-item">
-                <span class="tick-icon">✓</span>
-                <div><strong>Multi-Lingual Conversational Words:</strong> Strips English & Hindi colloquialisms (<em>namaste, batao, suno, bhai, dude, okay, um, so</em>).</div>
-              </li>
-              <li class="feature-tick-item">
-                <span class="tick-icon">✓</span>
-                <div><strong>100% In-Memory Audio:</strong> Spoken audio never touches your disk storage and is never uploaded to any remote cloud.</div>
-              </li>
+              <li class="feature-tick-item"><span class="tick-icon">✓</span><div><strong>Fillers ignored:</strong> "hey bro, please 25 plus 30" → 55.</div></li>
+              <li class="feature-tick-item"><span class="tick-icon">✓</span><div><strong>English, Hindi &amp; Hinglish:</strong> "teen lakh ka aadha", "500 ko 5 se divide karo", "<span lang="hi">दो लाख का पंद्रह परसेंट</span>".</div></li>
+              <li class="feature-tick-item"><span class="tick-icon">✓</span><div><strong>Lakh &amp; crore built in:</strong> answers grouped the Indian way (25,00,000) or internationally (2,500,000).</div></li>
+              <li class="feature-tick-item"><span class="tick-icon">✓</span><div><strong>Remembers your total:</strong> say "250 plus 120", pause, then "plus 80" and "divided by 3".</div></li>
+              <li class="feature-tick-item"><span class="tick-icon">✓</span><div><strong>Everyday money math:</strong> GST, discounts, percentages, square roots and bill splits.</div></li>
             </ul>
+            <p class="live-note">In the app, every calculation happens on your phone. Install your language's offline speech pack (Settings → Offline Speech) and voice works with no internet at all.</p>
           </div>
 
-          <!-- Interactive Voice Sandbox Card -->
-          <div class="voice-sandbox-card reveal">
-            <div class="sandbox-head">
-              <div class="sandbox-title">
-                <span>🎙️ Live Noise-Stripper Simulator</span>
-              </div>
-              <span class="live-badge">Interactive Demo</span>
-            </div>
-
-            <div class="sample-phrases-label">Click a spoken phrase to simulate live processing:</div>
-            <div class="sample-chips">
-              <button class="sample-chip active" type="button" data-phrase="Hey please calculate 18% tip on 420">"Hey please calculate 18% tip on 420"</button>
-              <button class="sample-chip" type="button" data-phrase="What is 55 times 12 minus 140">"What is 55 times 12 minus 140"</button>
-              <button class="sample-chip" type="button" data-phrase="Bro tell me 12500 divided by 5 plus 1500">"Bro tell me 12500 divided by 5 plus 1500"</button>
-              <button class="sample-chip" type="button" data-phrase="Can you calculate square root of 256 plus 64">"Can you calculate square root of 256 plus 64"</button>
-            </div>
-
-            <div class="voice-input-wrap">
-              <input class="voice-text-input" id="voiceTextInput" type="text" value="Hey please calculate 18% tip on 420" placeholder="Type or click a spoken phrase...">
-              <button class="voice-mic-sim-btn" id="voiceMicSimBtn" type="button" title="Simulate Voice Input">🎤</button>
-            </div>
-
-            <!-- Animated Waveform Bars -->
-            <div class="audio-wave-container" id="audioWaveContainer">
-              <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
-              <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
-              <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
-              <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
-              <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
-            </div>
-
-            <!-- Pipeline Visual Breakdown -->
-            <div class="pipeline-breakdown">
-              <div class="pipeline-row">
-                <span class="pipeline-label">Raw Spoken Input:</span>
-                <span class="pipeline-value" id="pipeRawSpoken">"Hey please calculate 18% tip on 420"</span>
-              </div>
-              <div class="pipeline-row">
-                <span class="pipeline-label">Stripped Noise Words:</span>
-                <span class="pipeline-value" id="pipeStrippedNoise">
-                  <span class="noise-stripped">~~hey~~</span> <span class="noise-stripped">~~please~~</span> <span class="noise-stripped">~~calculate~~</span> <span class="noise-stripped">~~tip on~~</span>
-                </span>
-              </div>
-              <div class="pipeline-row">
-                <span class="pipeline-label">Engine Equation:</span>
-                <span class="pipeline-value pipeline-math-expr" id="pipeMathFormula">18% × 420</span>
-              </div>
-              <div class="pipeline-row" style="border-top:1px solid rgba(255,255,255,0.08); padding-top:8px;">
-                <span class="pipeline-label" style="color:#fff; font-size:14px;">Instant Result:</span>
-                <span class="pipeline-value pipeline-final-ans" id="pipeFinalAnswer">75.6</span>
+          <div class="live-card reveal" id="liveDemo">
+            <div class="live-head">
+              <span class="lbl"><span class="live-dot"></span> Live demo · real engine</span>
+              <div class="group-toggle" role="group" aria-label="Number grouping">
+                <button type="button" class="active" data-group="indian">1,00,000</button>
+                <button type="button" data-group="western">100,000</button>
               </div>
             </div>
+            <div class="live-screen" aria-live="polite">
+              <div class="live-chip" id="liveTotal" hidden>Using last answer: <b id="liveTotalVal"></b> <button type="button" id="liveReset">Reset ✕</button></div>
+              <div class="live-quote" id="liveQuote">“Try: 18% GST on 2500”</div>
+              <div class="live-result" id="liveResult">0</div>
+              <div class="live-expr" id="liveExpr">Ready to calculate</div>
+              <div class="live-msg" id="liveMsg"></div>
+            </div>
+            <canvas class="live-wave" id="liveWave" aria-hidden="true"></canvas>
+            <form class="live-input" id="liveForm" autocomplete="off">
+              <button type="button" class="live-mic" id="liveMic" aria-label="Speak a calculation" aria-pressed="false">🎤</button>
+              <input id="liveInput" type="text" inputmode="text" placeholder="Type a sum, e.g. 1 crore divided by 4" aria-label="Type a calculation" maxlength="160">
+              <button type="submit" class="live-go" aria-label="Calculate">=</button>
+            </form>
+            <div class="live-langs" id="liveLangs">
+              <label for="liveLang">Voice language</label>
+              <select id="liveLang">
+                <option value="en-IN">English (India) / Hinglish</option>
+                <option value="hi-IN">हिन्दी (Hindi)</option>
+                <option value="en-US">English (US)</option>
+              </select>
+            </div>
+            <div class="live-chips">
+              <span class="lab">Tap to try</span>
+              <button type="button" data-q="18 percent GST on 2500">18% GST on 2500</button>
+              <button type="button" data-q="teen lakh ka aadha">teen lakh ka aadha</button>
+              <button type="button" data-q="1 crore divided by 4">1 crore divided by 4</button>
+              <button type="button" class="deva" data-q="दो लाख का पंद्रह परसेंट">दो लाख का पंद्रह परसेंट</button>
+              <button type="button" data-q="10 percent discount on 1499">10% discount on 1499</button>
+              <button type="button" data-q="hey bro what is square root of 144">hey bro, √144?</button>
+              <span class="lab">Running total, tap in order</span>
+              <button type="button" class="seq" data-q="250 plus 120">① 250 plus 120</button>
+              <button type="button" class="seq" data-q="plus 80">② plus 80</button>
+              <button type="button" class="seq" data-q="divided by 3">③ divided by 3</button>
+            </div>
+            <ol class="live-tape" id="liveTape" aria-label="Recent calculations"></ol>
+            <p class="live-privacy" id="livePrivacy">The mic uses your browser's built-in speech recognition (in Chrome, Google processes the audio). The calculation runs on this page. Nothing is stored or sent to us.</p>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════ SEE IT IN ACTION (video reel) ══════════════════════ -->
+    <section class="section" id="see-it">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="section-tag">See it in action</span>
+          <h2 class="section-title split-reveal">Fifteen seconds. <span class="grad-text">One superpower each.</span></h2>
+          <p class="section-desc">Real app screens, real answers. Tap a phone for sound.</p>
+        </div>
+        <div class="reel-row">
+          <figure class="reel-card reveal">
+            <div class="reel-phone" data-tilt="6" role="button" tabindex="0" aria-label="Play “Just say it” with sound">
+              <video muted loop playsinline preload="none" poster="assets/video/poster-gst.jpg" data-src="assets/video/clip-gst.mp4"></video>
+              <span class="reel-sound" aria-hidden="true"></span>
+            </div>
+            <figcaption><span class="tag">Voice</span><b>Just say it</b><span>“18% GST on 2500” → 2,950</span></figcaption>
+          </figure>
+          <figure class="reel-card reveal">
+            <div class="reel-phone" data-tilt="6" role="button" tabindex="0" aria-label="Play “Lakh &amp; crore” with sound">
+              <video muted loop playsinline preload="none" poster="assets/video/poster-lakh-crore.jpg" data-src="assets/video/clip-lakh-crore.mp4"></video>
+              <span class="reel-sound" aria-hidden="true"></span>
+            </div>
+            <figcaption><span class="tag">Hindi · Hinglish</span><b>Lakh &amp; crore</b><span>“1 crore divided by 4” → 25,00,000</span></figcaption>
+          </figure>
+          <figure class="reel-card reveal">
+            <div class="reel-phone" data-tilt="6" role="button" tabindex="0" aria-label="Play “It remembers” with sound">
+              <video muted loop playsinline preload="none" poster="assets/video/poster-running-total.jpg" data-src="assets/video/clip-running-total.mp4"></video>
+              <span class="reel-sound" aria-hidden="true"></span>
+            </div>
+            <figcaption><span class="tag">Running total</span><b>It remembers</b><span>370 → plus 80 → ÷ 3 = 150</span></figcaption>
+          </figure>
+          <figure class="reel-card reveal">
+            <div class="reel-phone" data-tilt="6" role="button" tabindex="0" aria-label="Play “Floats over any app” with sound">
+              <video muted loop playsinline preload="none" poster="assets/video/poster-floating.jpg" data-src="assets/video/clip-floating.mp4"></video>
+              <span class="reel-sound" aria-hidden="true"></span>
+            </div>
+            <figcaption><span class="tag">Android</span><b>Floats over any app</b><span>One tap, works offline</span></figcaption>
+          </figure>
+        </div>
+        <div class="film-cta reveal">
+          <button class="btn btn-primary btn-md" id="filmBtn" type="button">▶&nbsp; Watch the 42-second film</button>
         </div>
       </div>
     </section>
@@ -387,7 +415,7 @@
       <div class="container">
         <div class="section-head reveal">
           <span class="section-tag">Multitask Like a Pro · Android</span>
-          <h2 class="section-title">Picture-in-Picture <span class="grad-text-cyan">Floating Overlay</span></h2>
+          <h2 class="section-title split-reveal">Picture-in-Picture <span class="grad-text-cyan">Floating Overlay</span></h2>
           <p class="section-desc">
             No more switching back and forth between apps. Keep a lightweight calculator bubble floating right over WhatsApp, Amazon, Google Sheets, or your PDF invoices.
           </p>
@@ -476,7 +504,7 @@
       <div class="container">
         <div class="section-head reveal">
           <span class="section-tag">Glanceable Power · Android</span>
-          <h2 class="section-title">Calculate Directly From Your <span class="grad-text">Home Screen</span></h2>
+          <h2 class="section-title split-reveal">Calculate Directly From Your <span class="grad-text">Home Screen</span></h2>
           <p class="section-desc">
             No need to launch the app for quick sums. Pin the interactive VoiceCalc AI widget directly to your Android launcher.
           </p>
@@ -559,7 +587,7 @@
       <div class="container">
         <div class="section-head reveal">
           <span class="section-tag">Mathematical Precision</span>
-          <h2 class="section-title">Scientific Suite &amp; <span class="grad-text">Flawless Engine</span></h2>
+          <h2 class="section-title split-reveal">Scientific Suite &amp; <span class="grad-text">Flawless Engine</span></h2>
           <p class="section-desc">
             Engineered with deep safeguards. No accidental clears, no cut-off numbers, and full trigonometric &amp; logarithmic precision.
           </p>
@@ -687,7 +715,7 @@
       <div class="container">
         <div class="section-head reveal">
           <span class="section-tag">Got Questions?</span>
-          <h2 class="section-title">Frequently Asked Questions</h2>
+          <h2 class="section-title split-reveal">Frequently Asked Questions</h2>
           <p class="section-desc">Everything you need to know about VoiceCalc AI's features, privacy, and architecture.</p>
         </div>
 
@@ -849,7 +877,8 @@
         <h4 class="footer-col-title">Product</h4>
         <div class="footer-col-links">
           <a href="#features">Key Features</a>
-          <a href="#voice-ai">Voice Recognition</a>
+          <a href="#voice-ai">Live Demo</a>
+          <a href="#see-it">Videos</a>
           <a href="#floating-pip">Floating Overlay</a>
           <a href="#widget">Home Screen Widget</a>
           <a href="#scientific">Scientific Mode</a>
@@ -903,6 +932,17 @@
   <!-- Scripts -->
   <script src="js/main.js"></script>
   <script src="js/calculator.js"></script>
-  <script src="js/voice-demo.js"></script>
+  <script src="js/engine.js" defer></script>
+  <script src="js/live-demo.js" defer></script>
+  <script src="js/fx.js" defer></script>
+
+  <!-- Film player -->
+  <div class="film-modal" id="filmModal" hidden role="dialog" aria-modal="true" aria-label="VoiceCalc AI film">
+    <div class="film-backdrop"></div>
+    <div class="film-box">
+      <video controls playsinline preload="none" poster="assets/video/poster-film.jpg"></video>
+      <button class="film-close" type="button" aria-label="Close film">✕</button>
+    </div>
+  </div>
 </body>
 </html>

@@ -1,0 +1,7 @@
+{
+  "name": "voicecalc-web-engine",
+  "private": true,
+  "description": "Bundles the app's real calculation pipeline for the website's live demo (Website/js/engine.js).",
+  "scripts": { "build": "node build.mjs" },
+  "devDependencies": { "esbuild": "0.25.10" }
+}
